@@ -1,0 +1,4 @@
+- Set the returned info in their places
+- Add a button for new ad
+- Add an edit button for each ad
+- Add an edit button for advertiser info

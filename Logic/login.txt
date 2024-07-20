@@ -1,0 +1,13 @@
+Choose whether an advertiser or a user
+
+###### CASE 1 (Advertiser) ######
+- Check the email if exist form advertiser table
+- Check the password
+- Return info (image, name, ads, ...)
+
+###### CASE 2 (User) ######
+- Check the username if exist form user table
+- Check the password
+- Return info (image, name, wishlist, ...)
+
+**Add forgot the password => (new page need to be designed)

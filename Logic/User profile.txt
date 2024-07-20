@@ -1,0 +1,3 @@
+- Put the returned info in their places
+- Add an edit button for user info
+- A button for wishlist
