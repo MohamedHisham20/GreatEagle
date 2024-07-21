@@ -1,7 +1,7 @@
 Choose whether an advertiser or a user
 
 ###### CASE 1 (Advertiser) ######
-- Check the email if exist form advertiser table
+- Check the email if exist form advertiser table (can be front end)
 - Check the password
 - Return info (image, name, ads, ...)
 
@@ -11,3 +11,9 @@ Choose whether an advertiser or a user
 - Return info (image, name, wishlist, ...)
 
 **Add forgot the password => (new page need to be designed)
+
+############################checks and things to add #############
+
+- if multiple users exist
+
+- what is the difference between advertiser_type : Mapped[AdvertiserTypeEnum] and advertiser_type = db.Column(Enum(AdvertiserTypeEnum), nullable=False)

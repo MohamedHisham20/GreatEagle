@@ -1,22 +1,21 @@
 
-# import os
-#
-# from flask import request, jsonify, Blueprint
-# from flask_cors import CORS
-# from werkzeug.utils import secure_filename
-#
-# from database import cursor, database_session as conn, execute_query
-#
-# register = Blueprint("register", __name__, static_folder="static", template_folder="templates")
-# # CORS(register, resources={
-# #     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing
-#
-# """
-# @register.route('/register', methods=['POST'])
-# def register_1():
-#
-# """
-#
+import os
+
+from flask import request, jsonify, Blueprint
+from flask_cors import CORS
+from werkzeug.utils import secure_filename
+
+
+register = Blueprint("register", __name__, static_folder="static")
+# CORS(register, resources={
+#     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing
+
+"""
+@register.route('/register', methods=['POST'])
+def register_1():
+
+"""
+
 # @register.route('/check_user', methods=['POST'])
 # def check_user():
 #         data = request.json
@@ -81,7 +80,7 @@
 #         file.save(os.path.join(register.instance_path, 'static/images', filename))
 #         return 'File saved successfully'
 #
-#
-#
-#
-#
+
+
+
+

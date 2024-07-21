@@ -1,19 +1,29 @@
-from flask import Flask
+# blueprints/models.py
+import enum
+
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Enum, CheckConstraint, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import CheckConstraint, ForeignKey, Enum
+from flask_login import UserMixin
+from sqlalchemy.orm import Mapped
 
-app = Flask(__name__)
+db = SQLAlchemy()
 
-# Define your database URL and create an engine
-app.config[
-    'SQLALCHEMY_DATABASE_URI'] = ('postgresql://neondb_owner:nafA0yCgl2jH@ep-bitter-surf-a2u091xk.eu-central-1.aws'
-                                  '.neon.tech/neondb?sslmode=require')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Initialize SQLAlchemy with your Flask app
-db = SQLAlchemy(app)
-
+def dict_factory2(obj):
+    if isinstance(obj, list):
+        for user in obj:
+            if isinstance(user, Users):
+                print(user.__dict__)
+    elif isinstance(obj, Users):
+        print(obj.__dict__)
+    else:
+        return None
+def dict_factory(obj):
+    if isinstance(obj, list):
+        return [item.to_dict() for item in obj if isinstance(item, db.Model)]
+    elif isinstance(obj, db.Model):
+        return obj.to_dict()
+    # else:
+    #     return None
 
 class CriteriaEnum(db.Enum):
     Kids = 'Kids'
@@ -23,12 +33,12 @@ class CriteriaEnum(db.Enum):
     Elders = 'Elders'
 
 
-class AdvertiserTypeEnum(db.Enum):
-    Factory = 'Factory'
-    Shop = 'Shop'
+class AdvertiserTypeEnum(enum.Enum):
+    Factory = "Factory"
+    Shop = "Shop"
 
 
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
@@ -37,17 +47,42 @@ class Users(db.Model):
     name = db.Column(db.String(255), nullable=False)
     profilepic = db.Column(db.String(200))
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'password': self.password,
+            'email': self.email,
+            'age': self.age,
+            'name': self.name,
+            'profilepic': self.profilepic
+        }
 
-class Advertisers(db.Model):
+
+class Advertisers(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     company_name = db.Column(db.String(255), nullable=False)
     advertiser_name = db.Column(db.String(255), nullable=False)
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     advertiser_logo = db.Column(db.String(255))
-    advertiser_type = db.Column(AdvertiserTypeEnum, nullable=False)
+    advertiser_type = db.Column(Enum(AdvertiserTypeEnum), nullable=False) # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))
     visa_number = db.Column(db.Integer)
+
+    #transform to dictionary
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'company_name': self.company_name,
+            'advertiser_name': self.advertiser_name,
+            'contact_email': self.contact_email,
+            'password': self.password,
+            'advertiser_logo': self.advertiser_logo,
+            'advertiser_type': self.advertiser_type.value,  # get the value of the enum
+            'about': self.about,
+            'visa_number': self.visa_number
+        }
 
 
 class AdCampaigns(db.Model):
@@ -110,9 +145,8 @@ class Phones(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
-
 # Now you can use the session to execute queries
-with app.app_context():
-    userss = Users.query.all()
-    for user in userss:
-        print(user.__dict__)
+# with app.app_context():
+#     userss = Users.query.all()
+#     for user in userss:
+#         print(user.__dict__)
