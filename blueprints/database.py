@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped
 
 db = SQLAlchemy()
 
+
 def dict_factory2(obj):
     if isinstance(obj, list):
         for user in obj:
@@ -17,6 +18,8 @@ def dict_factory2(obj):
         print(obj.__dict__)
     else:
         return None
+
+
 def dict_factory(obj):
     if isinstance(obj, list):
         return [item.to_dict() for item in obj if isinstance(item, db.Model)]
@@ -24,6 +27,7 @@ def dict_factory(obj):
         return obj.to_dict()
     # else:
     #     return None
+
 
 class CriteriaEnum(db.Enum):
     Kids = 'Kids'
@@ -66,7 +70,8 @@ class Advertisers(db.Model, UserMixin):
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     advertiser_logo = db.Column(db.String(255))
-    advertiser_type = db.Column(Enum(AdvertiserTypeEnum), nullable=False) # another method enum : Mapped[AdvertiserTypeEnum]
+    advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
+                                nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))
     visa_number = db.Column(db.Integer)
 

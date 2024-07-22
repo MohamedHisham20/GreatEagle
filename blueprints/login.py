@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from database import Users, dict_factory, Advertisers
-from flask_login import login_user, current_user, logout_user, login_required
 from extensions import bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -41,3 +40,8 @@ def login_view():
 # def logout():
 #     logout_user()
 #     return jsonify({"message": "Logged out successfully"}), 200
+
+@login.route('/users', methods=['GET'])
+def users():
+    users = Users.query.all()
+    return jsonify({"users": dict_factory(users)}), 200
