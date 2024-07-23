@@ -17,9 +17,9 @@ def create_app():
     CORS(app, support_credentials=True)
 
     from Login import login
-    # from Register import register
+    from Register import register
     app.register_blueprint(login)
-    # app.register_blueprint(register)
+    app.register_blueprint(register)
 
     db.init_app(app)
 
