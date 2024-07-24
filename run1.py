@@ -16,8 +16,6 @@ engine = create_engine(connection_string)
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/get_users')
-
 if __name__ == '__main__':
     app.run(debug=True)
 

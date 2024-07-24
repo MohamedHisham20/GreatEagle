@@ -1,8 +1,18 @@
 {
+    "version": 2,
     "builds": [
-        {"src": "run.py", "use": "@vercel/python"}
+      {
+        "src": "path/to/your/api/*.py",
+        "use": "@vercel/python"
+      }
     ],
-    "routes": [
-        {"src": "/(.*)", "dest": "run.py"}
-    ]
-}
+    "build": {
+      "env": {
+        "RUSTFLAGS": "--cfg procmacro2_semver_exempt"
+      },
+      "scripts": {
+        "build": "./setup.sh"
+      }
+    }
+  }
+  

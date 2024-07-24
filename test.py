@@ -1,6 +1,6 @@
 #testing the database using sqlalchmey
 from database import db, Users, Advertisers
-from __init__ import app
+from run import app
 
 #testing the login function with enum
 with app.app_context():
