@@ -37,7 +37,7 @@ class CriteriaEnum(db.Enum):
     Elders = 'Elders'
 
 
-class AdvertiserTypeEnum(enum.Enum):
+class AdvertiserTypeEnum(db.Enum):
     Factory = "Factory"
     Shop = "Shop"
 
@@ -70,7 +70,7 @@ class Advertisers(db.Model, UserMixin):
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     advertiser_logo = db.Column(db.String(255))
-    advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
+    advertiser_type = db.Column(AdvertiserTypeEnum,
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))
     visa_number = db.Column(db.Integer)
