@@ -1,0 +1,18 @@
+1- All fields are requered
+2- check that the email or username doesn't exist in the data base.
+3- check that the email is in the suitable format
+4- check that password1 == password2
+5- saved a hashed password
+6- save a default profile picture
+>>> for front end => add a phone field 
+>>>>>> if you wonna send a verification code using phone number
+>>>>>> else we can send this code to the email (so it must be requered to both users and advertisers)
+
+EMAIL is IMPORTANT for both => password reset will be done through it
+
+------- if the regestered is an advertiser -------
+we must add another page to get company datails before returning to the profile
+- company name
+- description 
+- location
+- ....

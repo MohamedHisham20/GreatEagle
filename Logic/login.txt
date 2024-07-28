@@ -15,6 +15,8 @@ Choose whether an advertiser or a user
 ############################checks and things to add #############
 
 - if multiple users exist
+>>> multiple users can be handled while registration
+>>>>>> if the registered email or user name exist return "email already exits" to user
 
 - what is the difference between advertiser_type : Mapped[AdvertiserTypeEnum] and advertiser_type = db.Column(Enum(AdvertiserTypeEnum), nullable=False)
 
