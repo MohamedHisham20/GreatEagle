@@ -10,7 +10,7 @@
 
 EMAIL is IMPORTANT for both => password reset will be done through it
 
-------- if the regestered is an advertiser -------
+------- if the registered is an advertiser -------
 we must add another page to get company datails before returning to the profile
 - company name
 - description 
