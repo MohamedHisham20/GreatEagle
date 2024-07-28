@@ -14,5 +14,5 @@ EMAIL is IMPORTANT for both => password reset will be done through it
 we must add another page to get company datails before returning to the profile
 - company name
 - description 
-- location
+- location => connect location to maps
 - ....
