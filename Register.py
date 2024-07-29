@@ -1,4 +1,4 @@
-from database import Users, db
+from database import Users, db, Advertisers
 from extensions import bcrypt
 from flask import request, jsonify, Blueprint
 from flask_cors import CORS
@@ -18,30 +18,57 @@ def register_1():
 @register.route('/register', methods=['POST'])
 def register_1():
     data = request.json
-    username = data.get('username')
+    role = data.get('role')
     password = data.get('password')
-    name = data.get('name')
-    age = data.get('age')
-    email = data.get('email')
-
-    #check if email and password are provided
-    if not email or not password:
-        return jsonify({"error": "Please provide both email and password"}), 400
-
-    #check if user exists in the db
-    user = Users.query.filter_by(email=email).first()
-    if user:
-        return jsonify({"error": "User already exists"}), 400
-
     #hash the password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    #add the user to the database
-    new_user = Users(username=username, password=hashed_password, name=name, age=age, email=email)
-    db.session.add(new_user)
-    db.session.commit()
 
-    return jsonify({"message": "User created successfully"}), 201
+    if role == 'user':
+        username = data.get('username')
+        name = data.get('name')
+        age = data.get('age')
+        email = data.get('email')
+
+        #check if email and password are provided
+        if not email or not password:
+            return jsonify({"error": "Please provide both email and password"}), 400
+
+        user = Users.query.filter_by(email=email).first()
+        #check if user exists in the db
+        if user:
+            return jsonify({"error": "User already exists"}), 400
+
+        #add the user to the database
+        new_user = Users(username=username, password=hashed_password, name=name, age=age, email=email)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({"message": "User created successfully"}), 201
+    elif role == 'advertiser':
+        company_name = data.get('company_name')
+        advertiser_name = data.get('advertiser_name')
+        contact_email = data.get('contact_email')
+        about = data.get('about')
+        visa = data.get('visa')
+        advertiser_type = data.get('advertiser_type')
+        advertiser = Advertisers.query.filter_by(contact_email=contact_email).first()
+
+        #future implementation
+        phones = data.get('phones')
+        advertiserlocation = data.get('advertiserlocation')
+        #check if advertiser exists in the db
+        if advertiser:
+            return jsonify({"error": "User already exists"}), 400
+
+        #add the advertiser to the database
+        new_advertiser = Advertisers(company_name=company_name, advertiser_name=advertiser_name, contact_email=contact_email,
+                                     password=hashed_password, about=about, visa_number=visa, advertiser_type=advertiser_type)
+
+        db.session.add(new_advertiser)
+        db.session.commit()
+
+        return jsonify({"message": "User created successfully"}), 201
 
 
 

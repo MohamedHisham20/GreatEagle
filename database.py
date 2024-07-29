@@ -29,7 +29,7 @@ def dict_factory(obj):
     #     return None
 
 
-class CriteriaEnum(db.Enum):
+class CriteriaEnum(enum.Enum):
     Kids = 'Kids'
     BiggerKids = 'BiggerKids'
     Teenagers = 'Teenagers'
@@ -37,7 +37,7 @@ class CriteriaEnum(db.Enum):
     Elders = 'Elders'
 
 
-class AdvertiserTypeEnum(db.Enum):
+class AdvertiserTypeEnum(enum.Enum):
     Factory = "Factory"
     Shop = "Shop"
 
@@ -70,7 +70,7 @@ class Advertisers(db.Model, UserMixin):
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     advertiser_logo = db.Column(db.String(255))
-    advertiser_type = db.Column(AdvertiserTypeEnum,
+    advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))
     visa_number = db.Column(db.Integer)
@@ -95,7 +95,7 @@ class AdCampaigns(db.Model):
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'))
     campaign_name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(500))
-    target_audience = db.Column(CriteriaEnum, nullable=False)
+    target_audience = db.Column(Enum(CriteriaEnum), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date)
     price = db.Column(db.Integer)
@@ -120,7 +120,7 @@ class AdImpressions(db.Model):
 
 class AdvertiserLocations(db.Model):
     location = db.Column(db.String(255), primary_key=True)
-    a_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
+    advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
 
 class CampaignLocations(db.Model):
@@ -145,7 +145,7 @@ class Wishlist(db.Model):
 
 class Phones(db.Model):
     phone = db.Column(db.Integer, primary_key=True)
-    a_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
+    advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
     def __repr__(self):
         return '<User %r>' % self.username

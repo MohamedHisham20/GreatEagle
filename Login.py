@@ -35,13 +35,15 @@ def login_view():
     else:
         return jsonify({'Login Unsuccessful. Please check email and password'}), 401
 
-#logout route
-# @login.route('/logout', methods=['POST'])
-# def logout():
-#     logout_user()
-#     return jsonify({"message": "Logged out successfully"}), 200
+
+# logout route
+@login.route('/logout', methods=['POST'])
+def logout():
+    logout_user()
+    return jsonify({"message": "Logged out successfully"}), 200
+
 
 @login.route('/users', methods=['GET'])
 def users():
-    users = Users.query.all()
-    return jsonify({"users": dict_factory(users)}), 200
+    userss = Users.query.all()
+    return jsonify({"users": dict_factory(userss)}), 200

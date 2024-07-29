@@ -10,13 +10,11 @@ Choose whether an advertiser or a user
 - Check the password
 - Return info (image, name, wishlist, ...)
 
-**Add forgot the password => (new page need to be designed)
-
 ############################checks and things to add #############
+**Add forgot the password => (new page need to be designed)
 
 - if multiple users exist
 >>> multiple users can be handled while registration
->>>>>> if the registered email or user name exist return "email already exits" to user
 
 - what is the difference between advertiser_type : Mapped[AdvertiserTypeEnum] and advertiser_type = db.Column(Enum(AdvertiserTypeEnum), nullable=False)
 
