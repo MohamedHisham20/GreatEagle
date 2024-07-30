@@ -1,0 +1,20 @@
+Front: make target audience a check box
+
+
+- take the union of age ranges and filter the users using the new range 
+
+- edge case ان شاء الله ماتحصلش: if the advertiser chose discontainous range we will have more the one range to filter by.
+
+- set limit words for description and campaign name
+
+- if number of images > number of inseted video links
+>>> the remiander video could set as a string (the title of video on youtube)
+>>> or let the advertise insert the wanted title for each video and separate them form images
+
+- set a defaul image (campany logo) for the campaign don't link it with a video 
+
+Future work: suggest campaign name based on the description (use NLP model XD)
+
+
+--------- Edit campaign ----------
+Front: All fields will be filled with the old data and mave the save button disabled until detecting any change
