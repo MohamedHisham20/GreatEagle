@@ -49,7 +49,7 @@ class Users(db.Model, UserMixin):
     email = db.Column(db.String(255))
     age = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String(255), nullable=False)
-    profilepic = db.Column(db.String(200))
+    profile_pic = db.Column(db.String(200))
 
     def to_dict(self):
         return {
@@ -59,7 +59,7 @@ class Users(db.Model, UserMixin):
             'email': self.email,
             'age': self.age,
             'name': self.name,
-            'profilepic': self.profilepic
+            'profile_pic': self.profile_pic
         }
 
 
@@ -69,11 +69,11 @@ class Advertisers(db.Model, UserMixin):
     advertiser_name = db.Column(db.String(255), nullable=False)
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    advertiser_logo = db.Column(db.String(255))
+    advertiser_pic = db.Column(db.String(255))
     advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))
-    visa_number = db.Column(db.Integer)
+    visa_number = db.Column(db.String(50))
 
     #transform to dictionary
     def to_dict(self):
@@ -90,7 +90,8 @@ class Advertisers(db.Model, UserMixin):
         }
 
 
-class AdCampaigns(db.Model):
+class Campaigns(db.Model):
+    __tablename__ = 'ad_campaigns'  # Ensure this matches the table name
     id = db.Column(db.Integer, primary_key=True)
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'))
     campaign_name = db.Column(db.String(255), nullable=False)
@@ -103,14 +104,14 @@ class AdCampaigns(db.Model):
     __table_args__ = (CheckConstraint('end_date >= start_date OR end_date IS NULL', name='check_end_date'),)
 
 
-class AdClicks(db.Model):
+class Ad_Clicks(db.Model):
     ad_campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('users.id'), primary_key=True)
     click_date = db.Column(db.DateTime)
     link_pressed = db.Column(db.String(255))
 
 
-class AdImpressions(db.Model):
+class Ad_Impressions(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'))
     user_id = db.Column(db.Integer, ForeignKey('users.id'))
@@ -118,22 +119,23 @@ class AdImpressions(db.Model):
     took_offer = db.Column(db.Boolean)
 
 
-class AdvertiserLocations(db.Model):
+class Advertiser_Locations(db.Model):
+    __tablename__ = 'advertiser_locations'  # Ensure this matches the table name
     location = db.Column(db.String(255), primary_key=True)
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
 
-class CampaignLocations(db.Model):
+class Campaign_Locations(db.Model):
     location = db.Column(db.String(255), primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
 
 
-class Videos(db.Model):
+class Campaign_Videos(db.Model):
     link = db.Column(db.String(255), primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
 
 
-class Images(db.Model):
+class Campaign_Images(db.Model):
     image = db.Column(db.String(255), primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
 
@@ -143,8 +145,13 @@ class Wishlist(db.Model):
     user_id = db.Column(db.Integer, ForeignKey('users.id'), primary_key=True)
 
 
-class Phones(db.Model):
-    phone = db.Column(db.Integer, primary_key=True)
+class Advertiser_Images(db.Model):
+    image = db.Column(db.String(255), primary_key=True)
+    advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
+
+class Advertiser_Phones(db.Model):
+    __tablename__ = 'advertiser_phones'  # Ensure this matches the table name
+    phone = db.Column(db.String(20), primary_key=True)
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
     def __repr__(self):

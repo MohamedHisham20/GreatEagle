@@ -1,4 +1,5 @@
-- Set the returned info in their places
+- Set the returned info in their places (remain the ads and campaigns)
 - Add a button for new ad
 - Add an edit button for each ad
 - Add an edit button for advertiser info
+-Delete campaign

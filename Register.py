@@ -1,4 +1,4 @@
-from database import Users, db, Advertisers
+from database import Users, db, Advertisers, Advertiser_Phones, Advertiser_Locations
 from extensions import bcrypt
 from flask import request, jsonify, Blueprint
 from flask_cors import CORS
@@ -51,12 +51,12 @@ def register_1():
         contact_email = data.get('contact_email')
         about = data.get('about')
         visa = data.get('visa')
+        advertiser_phones = data.get('advertiser_phones')
+        advertiser_location = data.get('advertiser_location')
+        advertiser_image = data.get('advertiser_image') ########## future implementation
         advertiser_type = data.get('advertiser_type')
         advertiser = Advertisers.query.filter_by(contact_email=contact_email).first()
 
-        #future implementation
-        phones = data.get('phones')
-        advertiserlocation = data.get('advertiserlocation')
         #check if advertiser exists in the db
         if advertiser:
             return jsonify({"error": "User already exists"}), 400
@@ -67,7 +67,18 @@ def register_1():
 
         db.session.add(new_advertiser)
         db.session.commit()
-
+        #get the new added advertiser id to use it in the advertiser_phones table
+        advertiser_id = new_advertiser.id
+        #add the advertiser phones to the database
+        for phone in advertiser_phones:
+            new_phone = Advertiser_Phones(advertiser_id=advertiser_id, phone=phone)
+            db.session.add(new_phone)
+            # db.session.commit()
+        #add the advertiser location to the database
+        for location in advertiser_location:
+            new_location = Advertiser_Locations(advertiser_id=advertiser_id, location=location)
+            db.session.add(new_location)
+        db.session.commit()
         return jsonify({"message": "User created successfully"}), 201
 
 
