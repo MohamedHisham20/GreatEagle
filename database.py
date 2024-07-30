@@ -83,11 +83,10 @@ class Advertisers(db.Model, UserMixin):
             'advertiser_name': self.advertiser_name,
             'contact_email': self.contact_email,
             'password': self.password,
-            'advertiser_logo': self.advertiser_logo,
             'advertiser_type': self.advertiser_type.value,  # get the value of the enum
             'about': self.about,
             'visa_number': self.visa_number
-        }
+        }  #            'advertiser_logo': self.advertiser_logo,
 
 
 class Campaigns(db.Model):
@@ -124,6 +123,14 @@ class Advertiser_Locations(db.Model):
     location = db.Column(db.String(255), primary_key=True)
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
+    #create a to_dict function to transform the object to dictionary
+    def to_dict(self):
+        #loop on the object and return the dictionary
+        return {
+            'location': self.location,
+            'advertiser_id': self.advertiser_id
+        }
+
 
 class Campaign_Locations(db.Model):
     location = db.Column(db.String(255), primary_key=True)
@@ -149,10 +156,19 @@ class Advertiser_Images(db.Model):
     image = db.Column(db.String(255), primary_key=True)
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
+
 class Advertiser_Phones(db.Model):
     __tablename__ = 'advertiser_phones'  # Ensure this matches the table name
     phone = db.Column(db.String(20), primary_key=True)
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
+
+    #create a to_dict function to transform the object to dictionary
+    def to_dict(self):
+        #loop on the object and return the dictionary
+        return {
+            'phone': self.phone,
+            'advertiser_id': self.advertiser_id
+        }
 
     def __repr__(self):
         return '<User %r>' % self.username

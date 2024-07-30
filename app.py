@@ -18,8 +18,10 @@ def create_app():
 
     from Login import login
     from Register import register
+    from advertiserProfile import advertiser
     app.register_blueprint(login)
     app.register_blueprint(register)
+    app.register_blueprint(advertiser)
 
     db.init_app(app)
 

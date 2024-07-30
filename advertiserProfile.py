@@ -12,7 +12,7 @@ advertiser = Blueprint("advertiserProfile", __name__, static_folder="static")
 def get_info():     # get advertiser info (remaining the campaign info)
     data = request.json
     advertiser_id = data.get('advertiser_id')
-    advertiser = Advertisers.query.filter_by(advertiser_id=advertiser_id).first()
+    advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
 
     if not advertiser:
         return jsonify({"error": "Advertiser does not exist"}), 400
