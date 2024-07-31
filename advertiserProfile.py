@@ -1,15 +1,16 @@
-from database import db, Advertisers, Advertiser_Phones, Advertiser_Locations, Campaigns
+from database import db, Advertisers, Advertiser_Phones, Advertiser_Locations, Campaigns, dict_factory
 from extensions import bcrypt
 from flask import request, jsonify, Blueprint
 from flask_cors import CORS
 
-
 advertiser = Blueprint("advertiserProfile", __name__, static_folder="static")
+
+
 # CORS(register, resources={
 #     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing
 
 @advertiser.route('/advertiser/getInfo', methods=['POST'])
-def get_info():     # get advertiser info (remaining the campaign info)
+def get_info():  # get advertiser info (remaining the campaign info)
     data = request.json
     advertiser_id = data.get('advertiser_id')
     advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
@@ -17,14 +18,13 @@ def get_info():     # get advertiser info (remaining the campaign info)
     if not advertiser:
         return jsonify({"error": "Advertiser does not exist"}), 400
     # get advertiser phones
-    advertiser_phones = Advertiser_Phones.query.filter_by(advertiser_id=advertiser_id).all()
-    advertiser_locations = Advertiser_Locations.query.filter_by(advertiser_id=advertiser_id).all()
-    advertiser_phones = [phone.to_dict() for phone in advertiser_phones]
-    advertiser_locations = [location.to_dict() for location in advertiser_locations]
+    advertiser_phones = Advertiser_Phones.get_phones(advertiser_id)
+    advertiser_locations = Advertiser_Locations.get_locations(advertiser_id)
     advertiser = advertiser.to_dict()
     advertiser['phones'] = advertiser_phones
     advertiser['locations'] = advertiser_locations
     return jsonify({"advertiser": advertiser}), 200
+
 
 @advertiser.route('/advertiser/addCampaign', methods=['POST'])
 def add_campaign():
@@ -42,11 +42,15 @@ def add_campaign():
     if campaign:
         return jsonify({"error": "Campaign already exists"}), 400
 
-    new_campaign = Campaigns(advertiser_id=advertiser_id, campaign_name=campaign_name, campaign_description=campaign_description, campaign_start_date=campaign_start_date, campaign_end_date=campaign_end_date, campaign_budget=campaign_budget, campaign_type=campaign_type, campaign_image=campaign_image)
+    new_campaign = Campaigns(advertiser_id=advertiser_id, campaign_name=campaign_name,
+                             campaign_description=campaign_description, campaign_start_date=campaign_start_date,
+                             campaign_end_date=campaign_end_date, campaign_budget=campaign_budget,
+                             campaign_type=campaign_type, campaign_image=campaign_image)
     db.session.add(new_campaign)
     db.session.commit()
 
     return jsonify({"message": "Campaign created successfully"}), 201
+
 
 @advertiser.route('/advertiser/editCampaign', methods=['POST'])
 def edit_campaign():
@@ -77,6 +81,7 @@ def edit_campaign():
 
     return jsonify({"message": "Campaign updated successfully"}), 200
 
+
 @advertiser.route('/advertiser/deleteCampaign', methods=['POST'])
 def delete_campaign():
     data = request.json
@@ -91,10 +96,12 @@ def delete_campaign():
 
     return jsonify({"message": "Campaign deleted successfully"}), 200
 
+
 @advertiser.route('/advertiser/getCampaigns', methods=['GET'])
 def get_campaigns():
     campaigns = Campaigns.query.all()
     return jsonify({"campaigns": [campaign.to_dict() for campaign in campaigns]}), 200
+
 
 @advertiser.route('/advertiser/getCampaign', methods=['POST'])
 def get_campaign():
@@ -106,6 +113,7 @@ def get_campaign():
         return jsonify({"error": "Campaign does not exist"}), 400
 
     return jsonify({"campaign": campaign.to_dict()}), 200
+
 
 @advertiser.route('/advertiser/editAdvertiser', methods=['POST'])
 def edit_advertiser():

@@ -124,13 +124,14 @@ class Advertiser_Locations(db.Model):
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
     #create a to_dict function to transform the object to dictionary
-    def to_dict(self):
-        #loop on the object and return the dictionary
-        return {
-            'location': self.location,
-            'advertiser_id': self.advertiser_id
-        }
-
+    @staticmethod
+    def get_locations(advertiser_id):
+        # loop on the objects and return one dictionary for all the phones of the same advertiser
+        locations = []
+        # get the phones of the advertiser
+        for location in Advertiser_Locations.query.filter_by(advertiser_id=advertiser_id).all():
+            locations.append(location.location)
+        return locations
 
 class Campaign_Locations(db.Model):
     location = db.Column(db.String(255), primary_key=True)
@@ -163,12 +164,23 @@ class Advertiser_Phones(db.Model):
     advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
     #create a to_dict function to transform the object to dictionary
-    def to_dict(self):
-        #loop on the object and return the dictionary
-        return {
-            'phone': self.phone,
-            'advertiser_id': self.advertiser_id
-        }
+    @staticmethod
+    def get_phones(advertiser_id):
+        #loop on the objects and return one dictionary for all the phones of the same advertiser
+        phones = []
+        #get the phones of the advertiser
+        for phone in Advertiser_Phones.query.filter_by(advertiser_id=advertiser_id).all():
+            phones.append(phone.phone)
+        return phones
+        # return {
+            # 'phones': phones
+            # 'advertiser_id': self.advertiser_id
+        # }
+
+        # return {
+        #     'phone': self.phone
+        #     # 'advertiser_id': self.advertiser_id
+        # }
 
     def __repr__(self):
         return '<User %r>' % self.username

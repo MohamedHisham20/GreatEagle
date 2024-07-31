@@ -3,7 +3,6 @@ from extensions import bcrypt
 from flask import request, jsonify, Blueprint
 from flask_cors import CORS
 
-
 register = Blueprint("register", __name__, static_folder="static")
 # CORS(register, resources={
 #     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing
@@ -14,6 +13,7 @@ def register_1():
 
 """
 
+
 #register route using sqlalchemy and add the user into the database
 @register.route('/register', methods=['POST'])
 def register_1():
@@ -22,7 +22,6 @@ def register_1():
     password = data.get('password')
     #hash the password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
 
     if role == 'user':
         username = data.get('username')
@@ -53,7 +52,7 @@ def register_1():
         visa = data.get('visa')
         advertiser_phones = data.get('advertiser_phones')
         advertiser_location = data.get('advertiser_location')
-        advertiser_image = data.get('advertiser_image') ########## future implementation
+        advertiser_image = data.get('advertiser_image')  ########## future implementation
         advertiser_type = data.get('advertiser_type')
         advertiser = Advertisers.query.filter_by(contact_email=contact_email).first()
 
@@ -62,8 +61,10 @@ def register_1():
             return jsonify({"error": "User already exists"}), 400
 
         #add the advertiser to the database
-        new_advertiser = Advertisers(company_name=company_name, advertiser_name=advertiser_name, contact_email=contact_email,
-                                     password=hashed_password, about=about, visa_number=visa, advertiser_type=advertiser_type)
+        new_advertiser = Advertisers(company_name=company_name, advertiser_name=advertiser_name,
+                                     contact_email=contact_email,
+                                     password=hashed_password, about=about, visa_number=visa,
+                                     advertiser_type=advertiser_type)
 
         db.session.add(new_advertiser)
         db.session.commit()
@@ -80,8 +81,6 @@ def register_1():
             db.session.add(new_location)
         db.session.commit()
         return jsonify({"message": "User created successfully"}), 201
-
-
 
 # @register.route('/check_user', methods=['POST'])
 # def check_user():
@@ -147,7 +146,3 @@ def register_1():
 #         file.save(os.path.join(register.instance_path, 'static/images', filename))
 #         return 'File saved successfully'
 #
-
-
-
-
