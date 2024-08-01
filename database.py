@@ -124,6 +124,7 @@ class Ad_Clicks(db.Model):
 
 
 class Ad_Impressions(db.Model):
+    __tablename__ = 'ad_impressions'  # Ensure this matches the table name
     id = db.Column(db.Integer, primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'))
     user_id = db.Column(db.Integer, ForeignKey('users.id'))

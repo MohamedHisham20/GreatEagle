@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from database import Users, dict_factory, Advertisers, Campaigns
+from database import Users, dict_factory, Advertisers, Campaigns, Ad_Impressions, db
 from extensions import bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -22,4 +24,12 @@ def get_campaign():
 
     if not campaign:
         return jsonify({"error": "Ad does not exist"}), 400
-    return jsonify({"ad": dict_factory(campaign)}), 200
+    #get the advertiser of the campaign
+    advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
+
+    #add to the impression that the user entered the ad
+    new_impression = Ad_Impressions(campaign_id=campaign_id, user_id=current_user.id, impression_date=datetime.now())
+    db.session.add(new_impression)
+    db.session.commit()
+
+    return jsonify({"ad": dict_factory(campaign),"advertiser":dict_factory(advertiser)}), 200
