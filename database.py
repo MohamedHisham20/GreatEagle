@@ -102,6 +102,19 @@ class Campaigns(db.Model):
     offer = db.Column(db.Integer)
     __table_args__ = (CheckConstraint('end_date >= start_date OR end_date IS NULL', name='check_end_date'),)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'advertiser_id': self.advertiser_id,
+            'campaign_name': self.campaign_name,
+            'description': self.description,
+            'target_audience': self.target_audience.value,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'price': self.price,
+            'offer': self.offer
+        }
+
 
 class Ad_Clicks(db.Model):
     ad_campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)

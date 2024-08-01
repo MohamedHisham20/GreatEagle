@@ -99,20 +99,11 @@ def delete_campaign():
 
 @advertiser.route('/advertiser/getCampaigns', methods=['GET'])
 def get_campaigns():
-    campaigns = Campaigns.query.all()
-    return jsonify({"campaigns": [campaign.to_dict() for campaign in campaigns]}), 200
-
-
-@advertiser.route('/advertiser/getCampaign', methods=['POST'])
-def get_campaign():
+    #get all campaigns for a specific advertiser
     data = request.json
-    campaign_id = data.get('campaign_id')
-    campaign = Campaigns.query.filter_by(campaign_id=campaign_id).first()
-
-    if not campaign:
-        return jsonify({"error": "Campaign does not exist"}), 400
-
-    return jsonify({"campaign": campaign.to_dict()}), 200
+    advertiser_id = data.get('advertiser_id')
+    campaigns = Campaigns.query.filter_by(advertiser_id=advertiser_id).all()
+    return jsonify({"campaigns": dict_factory(campaigns)}), 200
 
 
 @advertiser.route('/advertiser/editAdvertiser', methods=['POST'])
