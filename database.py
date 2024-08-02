@@ -70,6 +70,7 @@ class Advertisers(db.Model, UserMixin):
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     advertiser_pic = db.Column(db.String(255))
+    referral_code = db.Column(db.Integer)
     advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))
@@ -85,7 +86,8 @@ class Advertisers(db.Model, UserMixin):
             'password': self.password,
             'advertiser_type': self.advertiser_type.value,  # get the value of the enum
             'about': self.about,
-            'visa_number': self.visa_number
+            'visa_number': self.visa_number,
+            'referral_code': self.referral_code
         }  #            'advertiser_logo': self.advertiser_logo,
 
 

@@ -44,12 +44,14 @@ def register_1():
         db.session.commit()
 
         return jsonify({"message": "User created successfully"}), 201
+
     elif role == 'advertiser':
         company_name = data.get('company_name')
         advertiser_name = data.get('advertiser_name')
         contact_email = data.get('contact_email')
         about = data.get('about')
         visa = data.get('visa')
+        referral_code = data.get('referral_code')
         advertiser_phones = data.get('advertiser_phones')
         advertiser_location = data.get('advertiser_location')
         advertiser_image = data.get('advertiser_image')  ########## future implementation
@@ -64,7 +66,7 @@ def register_1():
         new_advertiser = Advertisers(company_name=company_name, advertiser_name=advertiser_name,
                                      contact_email=contact_email,
                                      password=hashed_password, about=about, visa_number=visa,
-                                     advertiser_type=advertiser_type)
+                                     advertiser_type=advertiser_type, referral_code=referral_code)
 
         db.session.add(new_advertiser)
         db.session.commit()
