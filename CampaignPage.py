@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from database import Users, dict_factory, Advertisers, Campaigns, Ad_Impressions, db
+from database import Users, dict_factory, Advertisers, Campaigns, Ad_Impressions, db, Wishlist
 from flask_login import login_user, current_user, logout_user, login_required
 
 campaign_page = Blueprint("campaign_page", __name__, static_folder="static")
@@ -43,3 +43,19 @@ def take_offer():
             user_impression.took_offer = True
             db.session.commit()
             return jsonify({"message": "Offer taken successfully"}), 200
+
+# add to whishlist
+@campaign_page.route('/campaign_page/add_to_whishlist', methods=['POST'])
+def add_to_whishlist():
+    data = request.json
+    user_id = data.get('user_id')
+    campaign_id = data.get('campaign_id')
+    #check in the ad_impression whether the last impression took the offer or not
+    campaign = Wishlist.query.filter_by(user_id=user_id, campaign_id=campaign_id).first()
+    if campaign:
+        return jsonify({"error": "Campaign already in wishlist"}), 400
+    else:
+        new_wishlist = Wishlist(user_id=user_id, campaign_id=campaign_id)
+        db.session.add(new_wishlist)
+        db.session.commit()
+        return jsonify({"message": "Campaign added to wishlist successfully"}), 200
