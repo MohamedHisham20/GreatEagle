@@ -21,11 +21,13 @@ def create_app():
     from advertiserProfile import advertiser
     from home import home
     from CampaignPage import campaign_page
+    from searchPage import search_page
     app.register_blueprint(login)
     app.register_blueprint(register)
     app.register_blueprint(advertiser)
     app.register_blueprint(home)
     app.register_blueprint(campaign_page)
+    app.register_blueprint(search_page)
 
     db.init_app(app)
 

@@ -44,9 +44,9 @@ def take_offer():
             db.session.commit()
             return jsonify({"message": "Offer taken successfully"}), 200
 
-# add to whishlist
-@campaign_page.route('/campaign_page/add_to_whishlist', methods=['POST'])
-def add_to_whishlist():
+# add to wishlist
+@campaign_page.route('/campaign_page/add_to_wishlist', methods=['POST'])
+def add_to_wishlist():
     data = request.json
     user_id = data.get('user_id')
     campaign_id = data.get('campaign_id')
