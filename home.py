@@ -9,11 +9,20 @@ from flask_login import login_user, current_user, logout_user, login_required
 home = Blueprint("home", __name__, static_folder="static")
 CORS(home)
 
-#create a route to retreive all ads in the db
-@home.route('/home/allCampaigns', methods=['GET'])
-def all_Campaigns():
-    campaigns = Campaigns.query.all()
-    return jsonify({"ads": dict_factory(campaigns)}), 200
+
+#create a route to retreive popular ads in the db (campaigns with offers)
+@home.route('/home/popularCampaigns', methods=['GET'])
+def popular_Campaigns():
+    campaigns = Campaigns.query.filter(Campaigns.offer.isnot(None)).all()
+    return jsonify({"campaigns": dict_factory(campaigns)}), 200
+
+
+#create a route to retreive normal ads in the db (campaigns without offers)
+@home.route('/home/normalCampaigns', methods=['GET'])
+def normal_Campaigns():
+    campaigns = Campaigns.query.filter(Campaigns.offer.is_(None)).all()
+    return jsonify({"campaigns": dict_factory(campaigns)}), 200
+
 
 #create a route to retreive specific ad in the db
 @home.route('/home/getCampaign', methods=['POST'])
@@ -32,4 +41,4 @@ def get_campaign():
     db.session.add(new_impression)
     db.session.commit()
 
-    return jsonify({"ad": dict_factory(campaign),"advertiser":dict_factory(advertiser)}), 200
+    return jsonify({"ad": dict_factory(campaign), "advertiser": dict_factory(advertiser)}), 200
