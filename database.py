@@ -30,8 +30,8 @@ def dict_factory(obj):
 
 
 class CriteriaEnum(enum.Enum):
+    Babies = 'Babies'
     Kids = 'Kids'
-    BiggerKids = 'BiggerKids'
     Teenagers = 'Teenagers'
     Adults = 'Adults'
     Elders = 'Elders'
