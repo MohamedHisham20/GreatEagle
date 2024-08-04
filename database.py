@@ -1,6 +1,7 @@
 # blueprints/models.py
 import enum
 
+from flask import send_file
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint, ForeignKey, Enum
 from flask_login import UserMixin
@@ -8,6 +9,23 @@ from sqlalchemy.orm import Mapped
 
 db = SQLAlchemy()
 
+# create a function to get the image of the advertiser
+def get_advertiser_image(advertiser_id):
+    advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
+    #convert the image from binary to image
+    with open('image.jpg', 'wb') as file:
+        file.write(advertiser.advertiser_pic)
+    #return the image to display in the frontend
+    return send_file('image.jpg', mimetype='image/jpg')
+
+# create a function to get the image of the user
+def get_user_image(user_id):
+    user = Users.query.filter_by(id=user_id).first()
+    #convert the image from binary to image
+    with open('image.jpg', 'wb') as file:
+        file.write(user.profile_pic)
+    #return the image to display in the frontend
+    return send_file('image.jpg', mimetype='image/jpg')
 
 def dict_factory2(obj):
     if isinstance(obj, list):
@@ -69,7 +87,7 @@ class Advertisers(db.Model, UserMixin):
     advertiser_name = db.Column(db.String(255), nullable=False)
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    advertiser_pic = db.Column(db.String(255))
+    advertiser_pic = db.Column(db.LargeBinary)
     referral_code = db.Column(db.Integer)
     advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
@@ -87,8 +105,10 @@ class Advertisers(db.Model, UserMixin):
             'advertiser_type': self.advertiser_type.value,  # get the value of the enum
             'about': self.about,
             'visa_number': self.visa_number,
-            'referral_code': self.referral_code
-        }  #            'advertiser_logo': self.advertiser_logo,
+            'referral_code': self.referral_code,
+            #add the advertiser pic to the dictionary
+            'advertiser_pic': self.advertiser_pic
+        }
 
 
 class Campaigns(db.Model):

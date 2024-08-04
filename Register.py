@@ -1,6 +1,8 @@
-from database import Users, db, Advertisers, Advertiser_Phones, Advertiser_Locations
+from PIL import Image
+
+from database import Users, db, Advertisers, Advertiser_Phones, Advertiser_Locations, get_advertiser_image
 from extensions import bcrypt
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, send_file, Response, json
 from flask_cors import CORS
 
 register = Blueprint("register", __name__, static_folder="static")
@@ -13,11 +15,21 @@ def register_1():
 
 """
 
+#get advertiser by id
+@register.route('/get_advertiser', methods=['POST'])
+def get_advertiser():
+    data = request.json
+    advertiser_id = data.get('id')
+    advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
+    get_advertiser_image(advertiser_id)
+    #return the advertiser data and its image from get_advertiser_image function
+    return jsonify({"advertiser": advertiser.to_dict()}), 200
+
 
 #register route using sqlalchemy and add the user into the database
 @register.route('/register', methods=['POST'])
 def register_1():
-    data = request.json
+    data = json.loads(request.form['data'])
     role = data.get('role')
     password = data.get('password')
     #hash the password
@@ -54,7 +66,7 @@ def register_1():
         referral_code = data.get('referral_code')
         advertiser_phones = data.get('advertiser_phones')
         advertiser_location = data.get('advertiser_location')
-        advertiser_image = data.get('advertiser_image')  ########## future implementation
+        advertiser_image = request.files['image']  ########## future implementation
         advertiser_type = data.get('advertiser_type')
         advertiser = Advertisers.query.filter_by(contact_email=contact_email).first()
 
@@ -62,11 +74,17 @@ def register_1():
         if advertiser:
             return jsonify({"error": "User already exists"}), 400
 
+        #compress the advertiser image and convert it to binary to store in db
+        image = Image.open(advertiser_image)
+        image.save('compressed_image.jpg', 'JPEG', quality=40)
+        with open('compressed_image.jpg', 'rb') as file:
+            binary_image = file.read()
         #add the advertiser to the database
         new_advertiser = Advertisers(company_name=company_name, advertiser_name=advertiser_name,
                                      contact_email=contact_email,
                                      password=hashed_password, about=about, visa_number=visa,
-                                     advertiser_type=advertiser_type, referral_code=referral_code)
+                                     advertiser_type=advertiser_type, referral_code=referral_code,
+                                     advertiser_pic=binary_image)
 
         db.session.add(new_advertiser)
         db.session.commit()
@@ -83,6 +101,7 @@ def register_1():
             db.session.add(new_location)
         db.session.commit()
         return jsonify({"message": "User created successfully"}), 201
+
 
 # @register.route('/check_user', methods=['POST'])
 # def check_user():
@@ -148,3 +167,31 @@ def register_1():
 #         file.save(os.path.join(register.instance_path, 'static/images', filename))
 #         return 'File saved successfully'
 #
+#route to upload images to db
+@register.route('/upload', methods=['POST'])
+def upload_image():
+    img = request.files['image']
+    data = json.loads(request.form['id'])
+    id = data.get('id')
+    image = Image.open(img)
+    image.save('compressed_image.jpg', 'JPEG', quality=40)
+    with open('compressed_image.jpg', 'rb') as file:
+        binary_image = file.read()
+    #insert the image to the database for advertiser with id 1
+    advertiser = Advertisers.query.filter_by(id=id).first()
+    advertiser.advertiser_pic = binary_image
+    db.session.commit()
+
+    return jsonify({"message": "Image uploaded successfully"}), 200
+
+
+#route to get the image from the db
+# @register.route('/get_image', methods=['GET'])
+def get_image():
+    advertiser = Advertisers.query.filter_by(id=1).first()
+    #convert the image from binary to image
+    with open('image.jpg', 'wb') as file:
+        file.write(advertiser.advertiser_pic)
+    #return the image to display in the frontend
+    return send_file('image.jpg', mimetype='image/jpg')
+    # return Response(advertiser.advertiser_pic, mimetype='image/jpg')
