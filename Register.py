@@ -186,7 +186,7 @@ def upload_image():
 
 
 #route to get the image from the db
-# @register.route('/get_image', methods=['GET'])
+@register.route('/get_image', methods=['GET'])
 def get_image():
     advertiser = Advertisers.query.filter_by(id=1).first()
     #convert the image from binary to image
