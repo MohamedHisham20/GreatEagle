@@ -75,9 +75,7 @@ def register_1():
             return jsonify({"error": "User already exists"}), 400
 
         #upload the image to the cloudinary
-        resp = vercel_blob.put(advertiser_image.filename, advertiser_image.read(), {
-            "addRandomSuffix": "false",
-        })
+        resp = vercel_blob.put(advertiser_image.filename, advertiser_image.read())
         #get the image url
         image = resp.get('url')
         #add the advertiser to the database
