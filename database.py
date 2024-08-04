@@ -87,7 +87,7 @@ class Advertisers(db.Model, UserMixin):
     advertiser_name = db.Column(db.String(255), nullable=False)
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    advertiser_pic = db.Column(db.LargeBinary)
+    advertiser_pic = db.Column(db.String(200))
     referral_code = db.Column(db.Integer)
     advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]

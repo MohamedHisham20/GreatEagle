@@ -1,3 +1,4 @@
+import vercel_blob
 from PIL import Image
 
 from database import Users, db, Advertisers, Advertiser_Phones, Advertiser_Locations, get_advertiser_image
@@ -21,7 +22,6 @@ def get_advertiser():
     data = request.json
     advertiser_id = data.get('id')
     advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
-    get_advertiser_image(advertiser_id)
     #return the advertiser data and its image from get_advertiser_image function
     return jsonify({"advertiser": advertiser.to_dict()}), 200
 
@@ -74,17 +74,18 @@ def register_1():
         if advertiser:
             return jsonify({"error": "User already exists"}), 400
 
-        #compress the advertiser image and convert it to binary to store in db
-        image = Image.open(advertiser_image)
-        image.save('compressed_image.jpg', 'JPEG', quality=40)
-        with open('compressed_image.jpg', 'rb') as file:
-            binary_image = file.read()
+        #upload the image to the cloudinary
+        resp = vercel_blob.put(advertiser_image.filename, advertiser_image.read(), {
+            "addRandomSuffix": "false",
+        })
+        #get the image url
+        image = resp.get('url')
         #add the advertiser to the database
         new_advertiser = Advertisers(company_name=company_name, advertiser_name=advertiser_name,
                                      contact_email=contact_email,
                                      password=hashed_password, about=about, visa_number=visa,
                                      advertiser_type=advertiser_type, referral_code=referral_code,
-                                     advertiser_pic=binary_image)
+                                     advertiser_pic=image)
 
         db.session.add(new_advertiser)
         db.session.commit()

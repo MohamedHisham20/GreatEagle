@@ -1,24 +1,32 @@
-from flask import Flask
-from sqlalchemy import URL, create_engine
+from flask import Flask, request, redirect
+import vercel_blob
+import dotenv
 
 app = Flask(__name__)
 
-connection_string = URL.create(
-  'postgresql',
-  username='neondb_owner',
-  password='nafA0yCgl2jH',
-  host='ep-bitter-surf-a2u091xk.eu-central-1.aws.neon.tech',
-  database='neondb'
-)
-engine = create_engine(connection_string)
+dotenv.load_dotenv()
+
 
 @app.route('/')
 def hello_world():
-    return 'Hello, World!'
+    resp = vercel_blob.list()
+    return resp.get('blobs')
+
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    file = request.files['file']
+    print(file.filename)
+    # vercel_blob.put(file.filename, file.read(), {})
+    resp = vercel_blob.put(file.filename, file.read(), {
+        "addRandomSuffix": "false",
+    })
+    print(resp)
+    return redirect('/')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 # def insert_rowss():
 #     for i in range(15):
