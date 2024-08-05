@@ -1,20 +1,11 @@
 import vercel_blob
-from PIL import Image
-
 from database import Users, db, Advertisers, Advertiser_Phones, Advertiser_Locations, get_advertiser_image
 from extensions import bcrypt
-from flask import request, jsonify, Blueprint, send_file, Response, json
+from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
 
 register = Blueprint("register", __name__, static_folder="static")
-# CORS(register, resources={
-#     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing
-
-"""
-@register.route('/register', methods=['POST'])
-def register_1():
-
-"""
+CORS(register)
 
 #get advertiser by id
 @register.route('/get_advertiser', methods=['POST'])
@@ -167,30 +158,30 @@ def register_1():
 #         return 'File saved successfully'
 #
 #route to upload images to db
-@register.route('/upload', methods=['POST'])
-def upload_image():
-    img = request.files['image']
-    data = json.loads(request.form['id'])
-    id = data.get('id')
-    image = Image.open(img)
-    image.save('compressed_image.jpg', 'JPEG', quality=40)
-    with open('compressed_image.jpg', 'rb') as file:
-        binary_image = file.read()
-    #insert the image to the database for advertiser with id 1
-    advertiser = Advertisers.query.filter_by(id=id).first()
-    advertiser.advertiser_pic = binary_image
-    db.session.commit()
-
-    return jsonify({"message": "Image uploaded successfully"}), 200
+# @register.route('/upload', methods=['POST'])
+# def upload_image():
+#     img = request.files['image']
+#     data = json.loads(request.form['id'])
+#     id = data.get('id')
+#     image = Image.open(img)
+#     image.save('compressed_image.jpg', 'JPEG', quality=40)
+#     with open('compressed_image.jpg', 'rb') as file:
+#         binary_image = file.read()
+#     #insert the image to the database for advertiser with id 1
+#     advertiser = Advertisers.query.filter_by(id=id).first()
+#     advertiser.advertiser_pic = binary_image
+#     db.session.commit()
+#
+#     return jsonify({"message": "Image uploaded successfully"}), 200
 
 
 #route to get the image from the db
-@register.route('/get_image', methods=['GET'])
-def get_image():
-    advertiser = Advertisers.query.filter_by(id=1).first()
-    #convert the image from binary to image
-    with open('image.jpg', 'wb') as file:
-        file.write(advertiser.advertiser_pic)
-    #return the image to display in the frontend
-    return send_file('image.jpg', mimetype='image/jpg')
-    # return Response(advertiser.advertiser_pic, mimetype='image/jpg')
+# @register.route('/get_image', methods=['GET'])
+# def get_image():
+#     advertiser = Advertisers.query.filter_by(id=1).first()
+#     #convert the image from binary to image
+#     with open('image.jpg', 'wb') as file:
+#         file.write(advertiser.advertiser_pic)
+#     #return the image to display in the frontend
+#     return send_file('image.jpg', mimetype='image/jpg')
+#     # return Response(advertiser.advertiser_pic, mimetype='image/jpg')
