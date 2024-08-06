@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped
 
 db = SQLAlchemy()
 
+
 # create a function to get the image of the advertiser
 def get_advertiser_image(advertiser_id):
     advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
@@ -18,6 +19,7 @@ def get_advertiser_image(advertiser_id):
     #return the image to display in the frontend
     return send_file('image.jpg', mimetype='image/jpg')
 
+
 # create a function to get the image of the user
 def get_user_image(user_id):
     user = Users.query.filter_by(id=user_id).first()
@@ -26,6 +28,7 @@ def get_user_image(user_id):
         file.write(user.profile_pic)
     #return the image to display in the frontend
     return send_file('image.jpg', mimetype='image/jpg')
+
 
 def dict_factory2(obj):
     if isinstance(obj, list):
@@ -169,19 +172,40 @@ class Advertiser_Locations(db.Model):
             locations.append(location.location)
         return locations
 
+
 class Campaign_Locations(db.Model):
+    __tablename__ = 'campaign_locations'  # Ensure this matches the table name
     location = db.Column(db.String(255), primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
 
+    @staticmethod
+    def get_locations(campaign_id):
+        # loop on the objects and return one dictionary for all the phones of the same advertiser
+        locations = []
+        # get the phones of the advertiser
+        for location in Campaign_Locations.query.filter_by(campaign_id=campaign_id).all():
+            locations.append(location.location)
+        return locations
 
 class Campaign_Videos(db.Model):
+    __tablename__ = 'campaign_videos'  # Ensure this matches the table name
     link = db.Column(db.String(255), primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
 
 
 class Campaign_Images(db.Model):
+    __tablename__ = 'campaign_images'  # Ensure this matches the table name
     image = db.Column(db.String(255), primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
+
+    @staticmethod
+    def get_images(campaign_id):
+        # loop on the objects and return one dictionary for all the phones of the same advertiser
+        images = []
+        # get the phones of the advertiser
+        for image in Campaign_Images.query.filter_by(campaign_id=campaign_id).all():
+            images.append(image.image)
+        return images
 
 
 class Wishlist(db.Model):
@@ -209,8 +233,8 @@ class Advertiser_Phones(db.Model):
             phones.append(phone.phone)
         return phones
         # return {
-            # 'phones': phones
-            # 'advertiser_id': self.advertiser_id
+        # 'phones': phones
+        # 'advertiser_id': self.advertiser_id
         # }
 
         # return {

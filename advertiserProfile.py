@@ -1,6 +1,7 @@
 import vercel_blob
 
-from database import db, Advertisers, Advertiser_Phones, Advertiser_Locations, Campaigns, dict_factory
+from database import db, Advertisers, Advertiser_Phones, Advertiser_Locations, Campaigns, dict_factory, \
+    Campaign_Locations, Campaign_Images, Campaign_Videos
 from extensions import bcrypt
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
@@ -37,27 +38,52 @@ def get_info():  # get advertiser info (remaining the campaign info)
 
 @advertiser.route('/advertiser/addCampaign', methods=['POST'])
 def add_campaign():
-    data = request.json
+    data = json.loads(request.form['data'])
     advertiser_id = data.get('advertiser_id')
     campaign_name = data.get('campaign_name')
     campaign_description = data.get('campaign_description')
     campaign_start_date = data.get('campaign_start_date')
     campaign_end_date = data.get('campaign_end_date')
-    campaign_budget = data.get('campaign_budget')
-    campaign_type = data.get('campaign_type')
-    campaign_image = data.get('campaign_image')
-    campaign = Campaigns.query.filter_by(campaign_name=campaign_name).first()
+    campaign_target_audience = data.get('campaign_target_audience')
+    campaign_price = data.get('campaign_price')
+    campaign_offer = data.get('campaign_offer')
+    campaign_location = data.get('campaign_location')
+    campaign_videos = data.get('campaign_videos')
+    campaign_images = request.files.getlist("image")
 
+    campaign = Campaigns.query.filter_by(campaign_name=campaign_name).first()
     if campaign:
         return jsonify({"error": "Campaign already exists"}), 400
 
     new_campaign = Campaigns(advertiser_id=advertiser_id, campaign_name=campaign_name,
-                             campaign_description=campaign_description, campaign_start_date=campaign_start_date,
-                             campaign_end_date=campaign_end_date, campaign_budget=campaign_budget,
-                             campaign_type=campaign_type, campaign_image=campaign_image)
+                             description=campaign_description, start_date=campaign_start_date,
+                             end_date=campaign_end_date, target_audience=campaign_target_audience,
+                             price=campaign_price, offer=campaign_offer)
     db.session.add(new_campaign)
     db.session.commit()
+    # get the campaign id
+    campaign_id = new_campaign.id
+    print(campaign_id)
+    # add the campaign location to the database
+    for location in campaign_location:
+        new_location = Campaign_Locations(campaign_id=campaign_id, location=location)
+        db.session.add(new_location)
 
+    # add the campaign video URLs to the database
+    for video in campaign_videos:
+        new_video = Campaign_Videos(campaign_id=campaign_id, link=video)
+        db.session.add(new_video)
+
+    # add the campaign images to the database
+    for c_image in campaign_images:
+        # upload the image to the cloudinary
+        resp = vercel_blob.put(c_image.filename, c_image.read())
+        # get the image url
+        image = resp.get('url')
+        new_image = Campaign_Images(campaign_id=campaign_id, image=image)
+        db.session.add(new_image)
+
+    db.session.commit()
     return jsonify({"message": "Campaign created successfully"}), 201
 
 
@@ -191,7 +217,8 @@ def edit_advertiser():
         #delete the old locations that are not in the new list
         for location in locations:
             if location not in advertiser_locations:
-                deleted_location = Advertiser_Locations.query.filter_by(advertiser_id=advertiser_id, location=location).first()
+                deleted_location = Advertiser_Locations.query.filter_by(advertiser_id=advertiser_id,
+                                                                        location=location).first()
                 db.session.delete(deleted_location)
     db.session.commit()
 
