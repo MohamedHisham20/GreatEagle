@@ -31,6 +31,12 @@ def register_1():
         name = data.get('name')
         age = data.get('age')
         email = data.get('email')
+        user_image = request.files['image']  ########## future implementation
+
+        # upload the image to the cloudinary
+        resp = vercel_blob.put(user_image.filename, user_image.read())
+        # get the image url
+        image = resp.get('url')
 
         #check if email and password are provided
         if not email or not password:
@@ -42,7 +48,8 @@ def register_1():
             return jsonify({"error": "User already exists"}), 400
 
         #add the user to the database
-        new_user = Users(username=username, password=hashed_password, name=name, age=age, email=email)
+        new_user = Users(username=username, password=hashed_password, name=name, age=age,
+                         email=email, profile_pic=image)
         db.session.add(new_user)
         db.session.commit()
 

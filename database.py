@@ -109,7 +109,6 @@ class Advertisers(db.Model, UserMixin):
             'about': self.about,
             'visa_number': self.visa_number,
             'referral_code': self.referral_code,
-            #add the advertiser pic to the dictionary
             'advertiser_pic': self.advertiser_pic
         }
 

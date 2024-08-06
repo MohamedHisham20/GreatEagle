@@ -6,6 +6,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 campaign_page = Blueprint("campaign_page", __name__, static_folder="static")
 CORS(campaign_page)
 
+
 # create a route to check if user took offer or not
 @campaign_page.route('/campaign_page/check_offer', methods=['POST'])
 def check_offer():
@@ -23,6 +24,7 @@ def check_offer():
             return jsonify({"message": "Offer already taken"}), 400
         else:
             return jsonify({"message": "User can take offer"}), 200
+
 
 # create a route to take the offer
 @campaign_page.route('/campaign_page/take_offer', methods=['POST'])
@@ -44,6 +46,7 @@ def take_offer():
             db.session.commit()
             return jsonify({"message": "Offer taken successfully"}), 200
 
+
 # add to wishlist
 @campaign_page.route('/campaign_page/add_to_wishlist', methods=['POST'])
 def add_to_wishlist():
@@ -53,7 +56,10 @@ def add_to_wishlist():
     #check in the ad_impression whether the last impression took the offer or not
     campaign = Wishlist.query.filter_by(user_id=user_id, campaign_id=campaign_id).first()
     if campaign:
-        return jsonify({"error": "Campaign already in wishlist"}), 400
+        #remove from wishlist
+        db.session.delete(campaign)
+        db.session.commit()
+        return jsonify({"message": "Campaign removed from wishlist successfully"}), 200
     else:
         new_wishlist = Wishlist(user_id=user_id, campaign_id=campaign_id)
         db.session.add(new_wishlist)
