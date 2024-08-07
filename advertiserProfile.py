@@ -7,7 +7,7 @@ from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
 
 advertiser = Blueprint("advertiserProfile", __name__, static_folder="static")
-
+CORS(advertiser)
 
 # CORS(register, resources={
 #     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing

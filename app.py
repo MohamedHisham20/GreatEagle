@@ -22,12 +22,14 @@ def create_app():
     from home import home
     from CampaignPage import campaign_page
     from searchPage import search_page
+    from user import user
     app.register_blueprint(login)
     app.register_blueprint(register)
     app.register_blueprint(advertiser)
     app.register_blueprint(home)
     app.register_blueprint(campaign_page)
     app.register_blueprint(search_page)
+    app.register_blueprint(user)
 
     db.init_app(app)
 
