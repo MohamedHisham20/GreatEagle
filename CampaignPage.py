@@ -32,7 +32,13 @@ def take_offer():
     data = request.json
     user_id = data.get('user_id')
     campaign_id = data.get('campaign_id')
+    advertiser_id = data.get('qr_advertiser_id')       #qr output
     #check in the ad_impression whether the last impression took the offer or not
+    #check the advertiser has the campaign id that we give it
+    check_campaign = Campaigns.query.filter_by(advertiser_id=advertiser_id, id=campaign_id).first()
+    if not check_campaign:
+        return jsonify({"error": "Campaign not found"}), 400
+
     user_impression = Ad_Impressions.query.filter_by(user_id=user_id, campaign_id=campaign_id).order_by(
         Ad_Impressions.impression_date.desc()).first()
     if not user_impression:
