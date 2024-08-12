@@ -1,7 +1,7 @@
 import vercel_blob
 
 from database import db, Advertisers, Advertiser_Phones, Advertiser_Locations, Campaigns, dict_factory, \
-    Campaign_Locations, Campaign_Images, Campaign_Videos
+    Campaign_Locations, Campaign_Images, Campaign_Videos, check_data
 from extensions import bcrypt
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
@@ -9,14 +9,9 @@ from flask_cors import CORS
 advertiser = Blueprint("advertiserProfile", __name__, static_folder="static")
 CORS(advertiser)
 
+
 # CORS(register, resources={
 #     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing
-
-def check_data(old_data, new_data):
-    # check if the new_data is provided
-    if new_data:
-        return new_data
-    return old_data
 
 
 @advertiser.route('/advertiser/getInfo', methods=['POST'])
@@ -128,7 +123,7 @@ def edit_campaign():
     for location in locations:
         if location not in campaign_location:
             deleted_location = Campaign_Locations.query.filter_by(campaign_id=campaign_id, location=location
-                                                                    ).first()
+                                                                  ).first()
             db.session.delete(deleted_location)
 
     # add the campaign video URLs to the database
@@ -149,9 +144,9 @@ def edit_campaign():
     #delete the old images
     images = Campaign_Images.get_images(campaign_id)
     for image in images:
-            deleted_image = Campaign_Images.query.filter_by(campaign_id=campaign_id, image=image).first()
-            vercel_blob.delete(deleted_image.image)
-            db.session.delete(deleted_image)
+        deleted_image = Campaign_Images.query.filter_by(campaign_id=campaign_id, image=image).first()
+        vercel_blob.delete(deleted_image.image)
+        db.session.delete(deleted_image)
 
     # add the campaign images to the database
     for c_image in campaign_images:
@@ -162,8 +157,6 @@ def edit_campaign():
         new_image = Campaign_Images(campaign_id=campaign_id, image=image)
         db.session.add(new_image)
     db.session.commit()
-
-
 
     return jsonify({"message": "Campaign updated successfully"}), 200
 
@@ -176,6 +169,22 @@ def delete_campaign():
 
     if not campaign:
         return jsonify({"error": "Campaign does not exist"}), 400
+
+    #delete the campaign images
+    images = Campaign_Images.get_images(campaign_id)
+    for image in images:
+        vercel_blob.delete(image)
+        db.session.delete(image)
+
+    #delete the campaign videos
+    videos = Campaign_Videos.get_videos(campaign_id)
+    for video in videos:
+        db.session.delete(video)
+
+    #delete the campaign locations
+    locations = Campaign_Locations.get_locations(campaign_id)
+    for location in locations:
+        db.session.delete(location)
 
     db.session.delete(campaign)
     db.session.commit()

@@ -1,9 +1,11 @@
 import vercel_blob
 
 from database import db, Advertisers, Campaigns, dict_factory, Wishlist, Campaign_Images, Ad_Impressions, \
-    Advertiser_Phones
+    Advertiser_Phones, Users, check_data, Ad_Clicks
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
+
+from extensions import bcrypt
 
 user = Blueprint("user", __name__, static_folder="static")
 CORS(user)
@@ -91,3 +93,64 @@ def contact_advertiser():
     email = advertiser.contact_email
     phone = Advertiser_Phones.get_phones(advertiser.id)
     return jsonify({"email": email, "phone": phone}), 200
+
+
+#edit user profile
+@user.route('/user/edit_profile', methods=['POST'])
+def edit_profile():
+    data = json.loads(request.form['data'])
+    user_id = data.get('user_id')
+    user = Users.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 400
+    user_image = request.files.get('image')  ########## future implementation
+
+    if user_image:
+        # upload the image to the cloudinary
+        resp = vercel_blob.put(user_image.filename, user_image.read())
+        # get the image url
+        profile_pic = resp.get('url')
+        #remove old pic if there's new one
+        if user.profile_pic:
+            vercel_blob.delete(user.profile_pic)
+        #add the new pic to the user profile
+        user.profile_pic = profile_pic
+
+    #update the user profile
+    user.username = check_data(data.get('username'), user.username)
+    user.name = check_data(data.get('name'), user.name)
+    user.age = check_data(data.get('age'), user.age)
+    user.email = check_data(data.get('email'), user.email)
+    #hash the password if given
+    password = data.get('password')
+    if password:
+        #hash the password
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        user.password = check_data(hashed_password, user.password)
+    db.session.commit()
+    return jsonify({"message": "User profile updated successfully"}), 200
+
+
+#delete user profile
+@user.route('/user/delete_profile', methods=['POST'])
+def delete_profile():
+    data = request.json
+    user_id = data.get('user_id')
+    user = Users.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 400
+    #remove the user profile pic
+    if user.profile_pic:
+        vercel_blob.delete(user.profile_pic)
+    #delete the user impressions
+    Ad_Impressions.query.filter_by(user_id=user_id).delete()
+    #delete the user wishlist
+    Wishlist.query.filter_by(user_id=user_id).delete()
+    #delete ad clicks
+    Ad_Clicks.query.filter_by(user_id=user_id).delete()
+
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"message": "User profile deleted successfully"}), 200
+
+#####################add the follow advertiser logic#####################

@@ -31,7 +31,10 @@ def login_view():
     if user and bcrypt.check_password_hash(user.password, password):
         #Successful login
         login_user(user, remember=True)
-        return jsonify({"message": "Login successful", "user": dict_factory(user)}), 200
+        #add the role to the dictionary
+        user = dict_factory(user)
+        user['role'] = role
+        return jsonify({"message": "Login successful", "person": user}), 200
     else:
         return jsonify({'Login Unsuccessful. Please check email and password'}), 401
 

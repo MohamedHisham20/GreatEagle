@@ -26,17 +26,21 @@ def register_1():
     #hash the password
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
+    image = request.files.get('image')
+    if image:
+        # upload the image to the cloudinary
+        resp = vercel_blob.put(image.filename, image.read())
+        # get the image url
+        image_url = resp.get('url')
+    else:
+        image_url = None
+
     if role == 'user':
         username = data.get('username')
         name = data.get('name')
         age = data.get('age')
         email = data.get('email')
-        user_image = request.files['image']  ########## future implementation
 
-        # upload the image to the cloudinary
-        resp = vercel_blob.put(user_image.filename, user_image.read())
-        # get the image url
-        image = resp.get('url')
 
         #check if email and password are provided
         if not email or not password:
@@ -49,7 +53,7 @@ def register_1():
 
         #add the user to the database
         new_user = Users(username=username, password=hashed_password, name=name, age=age,
-                         email=email, profile_pic=image)
+                         email=email, profile_pic=image_url)
         db.session.add(new_user)
         db.session.commit()
 
@@ -64,24 +68,19 @@ def register_1():
         referral_code = data.get('referral_code')
         advertiser_phones = data.get('advertiser_phones')
         advertiser_location = data.get('advertiser_location')
-        advertiser_image = request.files['image']  ########## future implementation
         advertiser_type = data.get('advertiser_type')
         advertiser = Advertisers.query.filter_by(contact_email=contact_email).first()
 
         #check if advertiser exists in the db
         if advertiser:
-            return jsonify({"error": "User already exists"}), 400
+            return jsonify({"error": "Advertiser already exists"}), 400
 
-        #upload the image to the cloudinary
-        resp = vercel_blob.put(advertiser_image.filename, advertiser_image.read())
-        #get the image url
-        image = resp.get('url')
         #add the advertiser to the database
         new_advertiser = Advertisers(company_name=company_name, advertiser_name=advertiser_name,
                                      contact_email=contact_email,
                                      password=hashed_password, about=about, visa_number=visa,
                                      advertiser_type=advertiser_type, referral_code=referral_code,
-                                     advertiser_pic=image)
+                                     advertiser_pic=image_url)
 
         db.session.add(new_advertiser)
         db.session.commit()
@@ -97,7 +96,7 @@ def register_1():
             new_location = Advertiser_Locations(advertiser_id=advertiser_id, location=location)
             db.session.add(new_location)
         db.session.commit()
-        return jsonify({"message": "User created successfully"}), 201
+        return jsonify({"message": "Advertiser created successfully"}), 201
 
 
 # @register.route('/check_user', methods=['POST'])

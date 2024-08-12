@@ -19,6 +19,12 @@ def get_advertiser_image(advertiser_id):
     #return the image to display in the frontend
     return send_file('image.jpg', mimetype='image/jpg')
 
+# create a function to check if the new data is provided or not
+def check_data(old_data, new_data):
+    # check if the new_data is provided
+    if new_data:
+        return new_data
+    return old_data
 
 # create a function to get the image of the user
 def get_user_image(user_id):
@@ -141,6 +147,7 @@ class Campaigns(db.Model):
 
 
 class Ad_Clicks(db.Model):
+    __tablename__ = 'ad_clicks'  # Ensure this matches the table name
     ad_campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('users.id'), primary_key=True)
     click_date = db.Column(db.DateTime)
