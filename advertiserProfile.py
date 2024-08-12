@@ -89,30 +89,81 @@ def add_campaign():
 
 @advertiser.route('/advertiser/editCampaign', methods=['POST'])
 def edit_campaign():
-    data = request.json
-    campaign_id = data.get('campaign_id')
-    advertiser_id = data.get('advertiser_id')
+    data = json.loads(request.form['data'])
     campaign_name = data.get('campaign_name')
     campaign_description = data.get('campaign_description')
     campaign_start_date = data.get('campaign_start_date')
     campaign_end_date = data.get('campaign_end_date')
-    campaign_budget = data.get('campaign_budget')
-    campaign_type = data.get('campaign_type')
-    campaign_image = data.get('campaign_image')
-    campaign = Campaigns.query.filter_by(campaign_id=campaign_id).first()
+    campaign_target_audience = data.get('campaign_target_audience')
+    campaign_price = data.get('campaign_price')
+    campaign_offer = data.get('campaign_offer')
+    campaign_location = data.get('campaign_location')
+    campaign_videos = data.get('campaign_videos')
+    campaign_images = request.files.getlist("image")
+    campaign_id = data.get('campaign_id')
+    campaign = Campaigns.query.filter_by(id=campaign_id).first()
 
     if not campaign:
         return jsonify({"error": "Campaign does not exist"}), 400
 
-    campaign.advertiser_id = advertiser_id
-    campaign.campaign_name = campaign_name
-    campaign.campaign_description = campaign_description
-    campaign.campaign_start_date = campaign_start_date
-    campaign.campaign_end_date = campaign_end_date
-    campaign.campaign_budget = campaign_budget
-    campaign.campaign_type = campaign_type
-    campaign.campaign_image = campaign_image
+    # update the campaign if the data is provided
+    campaign.campaign_name = check_data(campaign.campaign_name, campaign_name)
+    campaign.description = check_data(campaign.description, campaign_description)
+    campaign.start_date = check_data(campaign.start_date, campaign_start_date)
+    campaign.end_date = check_data(campaign.end_date, campaign_end_date)
+    campaign.target_audience = check_data(campaign.target_audience, campaign_target_audience)
+    campaign.price = check_data(campaign.price, campaign_price)
+    campaign.offer = check_data(campaign.offer, campaign_offer)
+
+    # add the campaign location to the database
+    locations = Campaign_Locations.get_locations(campaign_id)
+    for location in campaign_location:
+        # update the location if it exists
+        if location in locations:
+            continue
+        else:
+            new_location = Campaign_Locations(campaign_id=campaign_id, location=location)
+            db.session.add(new_location)
+    # delete the old locations that are not in the new list
+    for location in locations:
+        if location not in campaign_location:
+            deleted_location = Campaign_Locations.query.filter_by(campaign_id=campaign_id, location=location
+                                                                    ).first()
+            db.session.delete(deleted_location)
+
+    # add the campaign video URLs to the database
+    videos = Campaign_Videos.get_videos(campaign_id)
+    for video in campaign_videos:
+        # update the video if it exists
+        if video in videos:
+            continue
+        else:
+            new_video = Campaign_Videos(campaign_id=campaign_id, link=video)
+            db.session.add(new_video)
+    # delete the old videos that are not in the new list
+    for video in videos:
+        if video not in campaign_videos:
+            deleted_video = Campaign_Videos.query.filter_by(campaign_id=campaign_id, link=video).first()
+            db.session.delete(deleted_video)
+
+    #delete the old images
+    images = Campaign_Images.get_images(campaign_id)
+    for image in images:
+            deleted_image = Campaign_Images.query.filter_by(campaign_id=campaign_id, image=image).first()
+            vercel_blob.delete(deleted_image.image)
+            db.session.delete(deleted_image)
+
+    # add the campaign images to the database
+    for c_image in campaign_images:
+        # upload the image to the cloudinary
+        resp = vercel_blob.put(c_image.filename, c_image.read())
+        # get the image url
+        image = resp.get('url')
+        new_image = Campaign_Images(campaign_id=campaign_id, image=image)
+        db.session.add(new_image)
     db.session.commit()
+
+
 
     return jsonify({"message": "Campaign updated successfully"}), 200
 
@@ -132,13 +183,20 @@ def delete_campaign():
     return jsonify({"message": "Campaign deleted successfully"}), 200
 
 
-@advertiser.route('/advertiser/getCampaigns', methods=['GET'])
+@advertiser.route('/advertiser/getCampaigns', methods=['POST'])
 def get_campaigns():
     #get all campaigns for a specific advertiser
     data = request.json
     advertiser_id = data.get('advertiser_id')
     campaigns = Campaigns.query.filter_by(advertiser_id=advertiser_id).all()
-    return jsonify({"campaigns": dict_factory(campaigns)}), 200
+    # get the campaigns' images
+    campaigns_dict = []
+    for campaign in campaigns:
+        campaign_images = Campaign_Images.get_images(campaign.id)
+        campaign = dict_factory(campaign)
+        campaign['images'] = campaign_images
+        campaigns_dict.append(campaign)
+    return jsonify({"campaigns": campaigns_dict}), 200
 
 
 @advertiser.route('/advertiser/editAdvertiser', methods=['POST'])
@@ -176,6 +234,9 @@ def edit_advertiser():
         resp = vercel_blob.put(advertiser_image.filename, advertiser_image.read())
         # get the image url
         image = resp.get('url')
+        # remove previous image from the cloudinary
+        if advertiser.advertiser_pic:
+            vercel_blob.delete(advertiser.advertiser_pic)
         advertiser.advertiser_pic = image
 
     #update if the data is provided

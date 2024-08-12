@@ -191,6 +191,15 @@ class Campaign_Videos(db.Model):
     link = db.Column(db.String(255), primary_key=True)
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
 
+    @staticmethod
+    def get_videos(campaign_id):
+        # loop on the objects and return one dictionary for all the phones of the same advertiser
+        videos = []
+        # get the phones of the advertiser
+        for video in Campaign_Videos.query.filter_by(campaign_id=campaign_id).all():
+            videos.append(video.link)
+        return videos
+
 
 class Campaign_Images(db.Model):
     __tablename__ = 'campaign_images'  # Ensure this matches the table name
