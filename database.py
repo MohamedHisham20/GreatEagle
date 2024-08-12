@@ -82,7 +82,6 @@ class Users(db.Model, UserMixin):
         return {
             'id': self.id,
             'username': self.username,
-            'password': self.password,
             'email': self.email,
             'age': self.age,
             'name': self.name,
@@ -110,7 +109,6 @@ class Advertisers(db.Model, UserMixin):
             'company_name': self.company_name,
             'advertiser_name': self.advertiser_name,
             'contact_email': self.contact_email,
-            'password': self.password,
             'advertiser_type': self.advertiser_type.value,  # get the value of the enum
             'about': self.about,
             'visa_number': self.visa_number,

@@ -28,7 +28,23 @@ def get_info():  # get advertiser info (remaining the campaign info)
     advertiser = advertiser.to_dict()
     advertiser['phones'] = advertiser_phones
     advertiser['locations'] = advertiser_locations
-    return jsonify({"advertiser": advertiser}), 200
+
+    # get the campaigns for the advertiser
+    campaigns = Campaigns.query.filter_by(advertiser_id=advertiser_id).all()
+    # get the campaigns' images
+    campaigns_dict = []
+    for campaign in campaigns:
+        campaign_images = Campaign_Images.get_images(campaign.id)
+        # add videos urls to the campaign dictionary
+        campaign_videos = Campaign_Videos.get_videos(campaign.id)
+        # add the locations to the campaign dictionary
+        campaign_locations = Campaign_Locations.get_locations(campaign.id)
+        campaign = dict_factory(campaign)
+        campaign['images'] = campaign_images
+        campaign['locations'] = campaign_locations
+        campaign['videos'] = campaign_videos
+        campaigns_dict.append(campaign)
+    return jsonify({"advertiser": advertiser, "campaigns":campaigns_dict}), 200
 
 
 @advertiser.route('/advertiser/addCampaign', methods=['POST'])
@@ -94,7 +110,8 @@ def edit_campaign():
     campaign_offer = data.get('campaign_offer')
     campaign_location = data.get('campaign_location')
     campaign_videos = data.get('campaign_videos')
-    campaign_images = request.files.getlist("image")
+    old_campaign_images = data.get('old_campaign_images')
+    new_campaign_images = request.files.getlist("image")
     campaign_id = data.get('campaign_id')
     campaign = Campaigns.query.filter_by(id=campaign_id).first()
 
@@ -143,19 +160,23 @@ def edit_campaign():
 
     #delete the old images
     images = Campaign_Images.get_images(campaign_id)
-    for image in images:
-        deleted_image = Campaign_Images.query.filter_by(campaign_id=campaign_id, image=image).first()
-        vercel_blob.delete(deleted_image.image)
-        db.session.delete(deleted_image)
+    if images:
+        for image in images:
+            if image not in old_campaign_images:
+                deleted_image = Campaign_Images.query.filter_by(campaign_id=campaign_id, image=image).first()
+                vercel_blob.delete(deleted_image.image)
+                db.session.delete(deleted_image)
 
     # add the campaign images to the database
-    for c_image in campaign_images:
-        # upload the image to the cloudinary
-        resp = vercel_blob.put(c_image.filename, c_image.read())
-        # get the image url
-        image = resp.get('url')
-        new_image = Campaign_Images(campaign_id=campaign_id, image=image)
-        db.session.add(new_image)
+    if new_campaign_images and new_campaign_images[0].filename != '':
+        print(new_campaign_images)
+        for c_image in new_campaign_images:
+            # upload the image to the cloudinary
+            resp = vercel_blob.put(c_image.filename, c_image.read())
+            # get the image url
+            image = resp.get('url')
+            new_image = Campaign_Images(campaign_id=campaign_id, image=image)
+            db.session.add(new_image)
     db.session.commit()
 
     return jsonify({"message": "Campaign updated successfully"}), 200
@@ -202,8 +223,14 @@ def get_campaigns():
     campaigns_dict = []
     for campaign in campaigns:
         campaign_images = Campaign_Images.get_images(campaign.id)
+        #add videos urls to the campaign dictionary
+        campaign_videos = Campaign_Videos.get_videos(campaign.id)
+        #add the locations to the campaign dictionary
+        campaign_locations = Campaign_Locations.get_locations(campaign.id)
         campaign = dict_factory(campaign)
         campaign['images'] = campaign_images
+        campaign['locations'] = campaign_locations
+        campaign['videos'] = campaign_videos
         campaigns_dict.append(campaign)
     return jsonify({"campaigns": campaigns_dict}), 200
 
@@ -227,13 +254,14 @@ def edit_advertiser():
     visa_number = data.get('visa')
     advertiser_phones = data.get('advertiser_phones')
     advertiser_locations = data.get('advertiser_locations')
-    advertiser_image = request.files.get('image')
+    advertiser_image = request.files['image']
 
     advertiser_password = data.get('password')
     hashed_password = bcrypt.generate_password_hash(advertiser_password).decode('utf-8')
     # check if the image is provided
     if advertiser_image:
         # check if the image is an image
+        print("hiiiiii")
         if advertiser_image.mimetype not in ['image/jpeg', 'image/png', 'image/jpg']:
             return jsonify({"error": "Please provide an image"}), 400
         # check if the image is less than 10MB

@@ -103,7 +103,7 @@ def edit_profile():
     user = Users.query.filter_by(id=user_id).first()
     if not user:
         return jsonify({"error": "User not found"}), 400
-    user_image = request.files.get('image')  ########## future implementation
+    user_image = request.files['image']  ########## future implementation
 
     if user_image:
         # upload the image to the cloudinary
@@ -153,4 +153,4 @@ def delete_profile():
     db.session.commit()
     return jsonify({"message": "User profile deleted successfully"}), 200
 
-#####################add the follow advertiser logic#####################
+##################### add the follow advertiser logic #####################

@@ -20,9 +20,12 @@ def popular_Campaigns():
     for campaign in campaigns:
         campaign_locations = Campaign_Locations.get_locations(campaign.id)
         campaign_images = Campaign_Images.get_images(campaign.id)
+        #get the advertiser of the campaign
+        advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         campaign = dict_factory(campaign)
         campaign['locations'] = campaign_locations
         campaign['images'] = campaign_images
+        campaign['advertiser'] = dict_factory(advertiser)
         campaigns_dict.append(campaign)
     return jsonify({"campaigns": campaigns_dict}), 200
 
