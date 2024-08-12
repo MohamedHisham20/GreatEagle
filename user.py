@@ -117,16 +117,16 @@ def edit_profile():
         user.profile_pic = profile_pic
 
     #update the user profile
-    user.username = check_data(data.get('username'), user.username)
-    user.name = check_data(data.get('name'), user.name)
-    user.age = check_data(data.get('age'), user.age)
-    user.email = check_data(data.get('email'), user.email)
+    user.username = check_data(user.username, data.get('username'))
+    user.name = check_data(user.name, data.get('name'))
+    user.age = check_data(user.age, data.get('age'))
+    user.email = check_data(user.email, data.get('email'))
     #hash the password if given
     password = data.get('password')
     if password:
         #hash the password
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        user.password = check_data(hashed_password, user.password)
+        user.password = check_data(user.password, hashed_password)
     db.session.commit()
     return jsonify({"message": "User profile updated successfully"}), 200
 
