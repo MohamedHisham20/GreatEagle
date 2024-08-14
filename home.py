@@ -4,8 +4,7 @@ from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from database import Users, dict_factory, Advertisers, Campaigns, Ad_Impressions, db, Campaign_Locations, \
     Campaign_Images
-from extensions import bcrypt
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import current_user, logout_user, login_required
 
 home = Blueprint("home", __name__, static_folder="static")
 CORS(home)

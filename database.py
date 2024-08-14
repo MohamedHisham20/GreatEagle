@@ -128,6 +128,7 @@ class Campaigns(db.Model):
     end_date = db.Column(db.Date)
     price = db.Column(db.Integer)
     offer = db.Column(db.Integer)
+    winner = db.Column(db.Integer)
     __table_args__ = (CheckConstraint('end_date >= start_date OR end_date IS NULL', name='check_end_date'),)
 
     def to_dict(self):
@@ -140,16 +141,35 @@ class Campaigns(db.Model):
             'start_date': self.start_date,
             'end_date': self.end_date,
             'price': self.price,
-            'offer': self.offer
+            'offer': self.offer,
+            'winner': self.winner
         }
 
 
 class Ad_Clicks(db.Model):
     __tablename__ = 'ad_clicks'  # Ensure this matches the table name
-    ad_campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
+    ad_campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'))
     user_id = db.Column(db.Integer, ForeignKey('users.id'), primary_key=True)
     click_date = db.Column(db.DateTime)
-    link_pressed = db.Column(db.String(255))
+    link_pressed = db.Column(db.String(255), primary_key=True)
+
+    def to_dict(self):
+        return {
+            'ad_campaign_id': self.ad_campaign_id,
+            'user_id': self.user_id,
+            'click_date': self.click_date,
+            'link_pressed': self.link_pressed
+        }
+
+    @staticmethod
+    def get_links(campaign_id, user_id):
+        # loop on the objects and return one dictionary for all the links of the same advertiser
+        links = []
+        # get the phones of the advertiser
+        for link in Ad_Clicks.query.filter_by(ad_campaign_id=campaign_id, user_id=user_id).all():
+            links.append(link.link_pressed)
+        return links
+
 
 
 class Ad_Impressions(db.Model):
