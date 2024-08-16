@@ -1,7 +1,7 @@
 import vercel_blob
 
 from database import db, Advertisers, Campaigns, dict_factory, Wishlist, Campaign_Images, Ad_Impressions, \
-    Advertiser_Phones, Users, check_data, Ad_Clicks
+    Advertiser_Phones, Users, check_data, Ad_Clicks, Campaign_Locations
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
 
@@ -21,17 +21,19 @@ def get_wishlist():
         return jsonify({"error": "Unauthorized"}), 401
     wishlist = Wishlist.query.filter_by(user_id=user_id).all()
     wishlist_dict = []
+    # get the campaigns' locations and images
     for item in wishlist:
+        campaign_locations = Campaign_Locations.get_locations(item.campaign_id)
+        campaign_images = Campaign_Images.get_images(item.campaign_id)
+        # get the campaign with campaign id
         campaign = Campaigns.query.filter_by(id=item.campaign_id).first()
-        # get the campaign images
-        campaign_images = Campaign_Images.get_images(campaign.id)
         advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         campaign = dict_factory(campaign)
-        advertiser = dict_factory(advertiser)
-        campaign['advertiser'] = advertiser
+        campaign['locations'] = campaign_locations
         campaign['images'] = campaign_images
+        campaign['advertiser'] = dict_factory(advertiser)
         wishlist_dict.append(campaign)
-    return jsonify({"wishlist": wishlist_dict}), 200
+    return jsonify({"campaigns": wishlist_dict}), 200
 
 
 #recently viewed ads
