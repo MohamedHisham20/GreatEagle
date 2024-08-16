@@ -16,6 +16,9 @@ CORS(user)
 def get_wishlist():
     data = request.json
     user_id = data.get('user_id')
+    if not user_id:
+        #return unauthorized if the user is not logged in
+        return jsonify({"error": "Unauthorized"}), 401
     wishlist = Wishlist.query.filter_by(user_id=user_id).all()
     wishlist_dict = []
     for item in wishlist:
