@@ -49,6 +49,7 @@ def recently_viewed():
     viewed_ads_dict = []
     for item in viewed_ads:
         campaign = Campaigns.query.filter_by(id=item.campaign_id).first()
+        campaign_locations = Campaign_Locations.get_locations(item.campaign_id)
         # get the campaign images
         campaign_images = Campaign_Images.get_images(campaign.id)
         advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
@@ -56,8 +57,9 @@ def recently_viewed():
         advertiser = dict_factory(advertiser)
         campaign['advertiser'] = advertiser
         campaign['images'] = campaign_images
+        campaign['locations'] = campaign_locations
         viewed_ads_dict.append(campaign)
-    return jsonify({"recently_viewed": viewed_ads_dict}), 200
+    return jsonify({"campaigns": viewed_ads_dict}), 200
 
 
 #used offers by the user
@@ -73,15 +75,17 @@ def used_offers():
     viewed_ads_dict = []
     for item in viewed_ads:
         campaign = Campaigns.query.filter_by(id=item.campaign_id).first()
+        campaign_locations = Campaign_Locations.get_locations(item.campaign_id)
         # get the campaign images
         campaign_images = Campaign_Images.get_images(campaign.id)
         advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         campaign = dict_factory(campaign)
         advertiser = dict_factory(advertiser)
+        campaign['locations'] = campaign_locations
         campaign['advertiser'] = advertiser
         campaign['images'] = campaign_images
         viewed_ads_dict.append(campaign)
-    return jsonify({"used_offers": viewed_ads_dict}), 200
+    return jsonify({"campaigns": viewed_ads_dict}), 200
 
 
 #user contact advertiser
