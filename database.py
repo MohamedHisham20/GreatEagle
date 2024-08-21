@@ -106,14 +106,13 @@ class Advertisers(db.Model, UserMixin):
     def to_dict(self):
         return {
             'id': self.id,
-            'company_name': self.company_name,
-            'advertiser_name': self.advertiser_name,
-            'contact_email': self.contact_email,
+            'name': self.company_name,
+            'username': self.advertiser_name,
+            'email': self.contact_email,
             'advertiser_type': self.advertiser_type.value,  # get the value of the enum
             'about': self.about,
-            'visa_number': self.visa_number,
             'referral_code': self.referral_code,
-            'advertiser_pic': self.advertiser_pic
+            'profile_pic': self.advertiser_pic
         }
 
 

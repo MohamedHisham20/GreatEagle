@@ -51,10 +51,10 @@ def recently_viewed():
         campaign = Campaigns.query.filter_by(id=item.campaign_id).first()
         # get the campaign images
         campaign_images = Campaign_Images.get_images(campaign.id)
-        # advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
+        advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         campaign = dict_factory(campaign)
-        # advertiser = dict_factory(advertiser)
-        # campaign['advertiser'] = advertiser
+        advertiser = dict_factory(advertiser)
+        campaign['advertiser'] = advertiser
         campaign['images'] = campaign_images
         viewed_ads_dict.append(campaign)
     return jsonify({"recently_viewed": viewed_ads_dict}), 200

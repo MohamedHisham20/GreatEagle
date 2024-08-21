@@ -60,9 +60,9 @@ def register_1():
         return jsonify({"message": "User created successfully"}), 201
 
     elif role == 'advertiser':
-        company_name = data.get('company_name')
-        advertiser_name = data.get('advertiser_name')
-        contact_email = data.get('contact_email')
+        company_name = data.get('name')
+        advertiser_name = data.get('username')
+        contact_email = data.get('email')
         about = data.get('about')
         visa = data.get('visa')
         referral_code = data.get('referral_code')
