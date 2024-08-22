@@ -101,6 +101,7 @@ def add_campaign():
 @advertiser.route('/advertiser/editCampaign', methods=['POST'])
 def edit_campaign():
     data = json.loads(request.form['data'])
+    
     campaign_name = data.get('campaign_name')
     campaign_description = data.get('campaign_description')
     campaign_start_date = data.get('campaign_start_date')
@@ -126,6 +127,7 @@ def edit_campaign():
     campaign.target_audience = check_data(campaign.target_audience, campaign_target_audience)
     campaign.price = check_data(campaign.price, campaign_price)
     campaign.offer = check_data(campaign.offer, campaign_offer)
+    campaign.target_audience = check_data(campaign.target_audience, campaign_target_audience)
 
     # add the campaign location to the database
     locations = Campaign_Locations.get_locations(campaign_id)
