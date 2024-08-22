@@ -20,14 +20,14 @@ def popular_Campaigns():
         campaign_locations = Campaign_Locations.get_locations(campaign.id)
         campaign_images = Campaign_Images.get_images(campaign.id)
         #get the advertiser of the campaign
-        advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
+        # advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         #get campaign videos
-        campaign_videos = Campaign_Videos.get_videos(campaign.id)
+        # campaign_videos = Campaign_Videos.get_videos(campaign.id)
         campaign = dict_factory(campaign)
         campaign['locations'] = campaign_locations
         campaign['images'] = campaign_images
-        campaign['advertiser'] = dict_factory(advertiser)
-        campaign['videos'] = campaign_videos
+        # campaign['advertiser'] = dict_factory(advertiser)
+        # campaign['videos'] = campaign_videos
         campaigns_dict.append(campaign)
     return jsonify({"campaigns": campaigns_dict}), 200
 
@@ -42,14 +42,14 @@ def normal_Campaigns():
         campaign_locations = Campaign_Locations.get_locations(campaign.id)
         campaign_images = Campaign_Images.get_images(campaign.id)
         # get the advertiser of the campaign
-        advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
+        # advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         # get campaign videos
-        campaign_videos = Campaign_Videos.get_videos(campaign.id)
+        # campaign_videos = Campaign_Videos.get_videos(campaign.id)
         campaign = dict_factory(campaign)
         campaign['locations'] = campaign_locations
         campaign['images'] = campaign_images
-        campaign['advertiser'] = dict_factory(advertiser)
-        campaign['videos'] = campaign_videos
+        # campaign['advertiser'] = dict_factory(advertiser)
+        # campaign['videos'] = campaign_videos
         campaigns_dict.append(campaign)
     return jsonify({"campaigns": campaigns_dict}), 200
 
@@ -59,6 +59,7 @@ def normal_Campaigns():
 def get_campaign():
     data = request.json
     campaign_id = data.get('campaign_id')
+    user_id = data.get('user_id')
     campaign = Campaigns.query.filter_by(id=campaign_id).first()
 
     if not campaign:
@@ -77,8 +78,8 @@ def get_campaign():
     campaign['videos'] = campaign_videos
 
     #add to the impression that the user entered the ad
-    new_impression = Ad_Impressions(campaign_id=campaign_id, user_id=current_user.id, impression_date=datetime.now())
+    new_impression = Ad_Impressions(campaign_id=campaign_id, user_id=user_id, impression_date=datetime.now())
     db.session.add(new_impression)
     db.session.commit()
 
-    return jsonify({"ad": campaign, "advertiser": dict_factory(advertiser)}), 200
+    return jsonify({"campaigns": campaign}), 200
