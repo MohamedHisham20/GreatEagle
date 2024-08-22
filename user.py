@@ -1,7 +1,7 @@
 import vercel_blob
 
 from database import db, Advertisers, Campaigns, dict_factory, Wishlist, Campaign_Images, Ad_Impressions, \
-    Advertiser_Phones, Users, check_data, Ad_Clicks, Campaign_Locations
+    Advertiser_Phones, Users, check_data, Ad_Clicks, Campaign_Locations, Campaign_Videos
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
 
@@ -27,11 +27,14 @@ def get_wishlist():
         campaign_images = Campaign_Images.get_images(item.campaign_id)
         # get the campaign with campaign id
         campaign = Campaigns.query.filter_by(id=item.campaign_id).first()
+        #get the campaign videos
+        campaign_videos = Campaign_Videos.get_videos(campaign.id)
         advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         campaign = dict_factory(campaign)
         campaign['locations'] = campaign_locations
         campaign['images'] = campaign_images
         campaign['advertiser'] = dict_factory(advertiser)
+        campaign['videos'] = campaign_videos
         wishlist_dict.append(campaign)
     return jsonify({"campaigns": wishlist_dict}), 200
 
@@ -52,12 +55,15 @@ def recently_viewed():
         campaign_locations = Campaign_Locations.get_locations(item.campaign_id)
         # get the campaign images
         campaign_images = Campaign_Images.get_images(campaign.id)
+        #get campaign videos
+        campaign_videos = Campaign_Videos.get_videos(campaign.id)
         advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         campaign = dict_factory(campaign)
         advertiser = dict_factory(advertiser)
         campaign['advertiser'] = advertiser
         campaign['images'] = campaign_images
         campaign['locations'] = campaign_locations
+        campaign['videos'] = campaign_videos
         viewed_ads_dict.append(campaign)
     return jsonify({"campaigns": viewed_ads_dict}), 200
 
@@ -78,12 +84,15 @@ def used_offers():
         campaign_locations = Campaign_Locations.get_locations(item.campaign_id)
         # get the campaign images
         campaign_images = Campaign_Images.get_images(campaign.id)
+        #get campaign videos
+        campaign_videos = Campaign_Videos.get_videos(campaign.id)
         advertiser = Advertisers.query.filter_by(id=campaign.advertiser_id).first()
         campaign = dict_factory(campaign)
         advertiser = dict_factory(advertiser)
         campaign['locations'] = campaign_locations
         campaign['advertiser'] = advertiser
         campaign['images'] = campaign_images
+        campaign['videos'] = campaign_videos
         viewed_ads_dict.append(campaign)
     return jsonify({"campaigns": viewed_ads_dict}), 200
 

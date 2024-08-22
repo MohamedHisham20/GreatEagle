@@ -246,9 +246,9 @@ def edit_advertiser():
     if not advertiser:
         return jsonify({"error": "Advertiser does not exist"}), 400
 
-    company_name = data.get('company_name')
-    advertiser_name = data.get('advertiser_name')
-    contact_email = data.get('contact_email')
+    company_name = data.get('name')
+    advertiser_name = data.get('username')
+    contact_email = data.get('email')
     advertiser_type = data.get('advertiser_type')
     about = data.get('about')
     visa_number = data.get('visa')
