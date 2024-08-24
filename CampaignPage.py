@@ -86,7 +86,7 @@ def add_to_wishlist():
             new_wishlist = User_Wishlist(user_id=user_advertiser_id, campaign_id=campaign_id)
             db.session.add(new_wishlist)
             db.session.commit()
-            return jsonify({"message": "Campaign added to wishlist successfully"}), 200
+            return jsonify({"message": "Campaign added to wishlist successfully"}), 201
 
 
 # add link pressed to the ad_clicks

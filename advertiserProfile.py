@@ -308,9 +308,8 @@ def edit_advertiser():
     # check if the image is provided
     if advertiser_image:
         # check if the image is an image
-        print("hiiiiii")
-        if advertiser_image.mimetype not in ['image/jpeg', 'image/png', 'image/jpg']:
-            return jsonify({"error": "Please provide an image"}), 400
+        # if advertiser_image.mimetype not in ['image/jpeg', 'image/png', 'image/jpg']:
+        #     return jsonify({"error": "Please provide an image"}), 400
         # check if the image is less than 10MB
         if advertiser_image.content_length > 10 * 1024 * 1024:
             return jsonify({"error": "Image size should be less than 10MB"}), 400
