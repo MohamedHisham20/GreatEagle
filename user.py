@@ -1,6 +1,6 @@
 import vercel_blob
 
-from database import db, Advertisers, Campaigns, dict_factory, Wishlist, Campaign_Images, Ad_Impressions, \
+from database import db, Advertisers, Campaigns, dict_factory, User_Wishlist, Campaign_Images, Ad_Impressions, \
     Advertiser_Phones, Users, check_data, Ad_Clicks, Campaign_Locations, Campaign_Videos
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
@@ -19,7 +19,7 @@ def get_wishlist():
     if not user_id:
         #return unauthorized if the user is not logged in
         return jsonify({"error": "Unauthorized"}), 401
-    wishlist = Wishlist.query.filter_by(user_id=user_id).all()
+    wishlist = User_Wishlist.query.filter_by(user_id=user_id).all()
     wishlist_dict = []
     # get the campaigns' locations and images
     for item in wishlist:
@@ -163,7 +163,7 @@ def delete_profile():
     #delete the user impressions
     Ad_Impressions.query.filter_by(user_id=user_id).delete()
     #delete the user wishlist
-    Wishlist.query.filter_by(user_id=user_id).delete()
+    User_Wishlist.query.filter_by(user_id=user_id).delete()
     #delete ad clicks
     Ad_Clicks.query.filter_by(user_id=user_id).delete()
 

@@ -1,7 +1,7 @@
 import vercel_blob
 
 from database import db, Advertisers, Advertiser_Phones, Advertiser_Locations, Campaigns, dict_factory, \
-    Campaign_Locations, Campaign_Images, Campaign_Videos, check_data
+    Campaign_Locations, Campaign_Images, Campaign_Videos, check_data, Advertiser_Wishlist
 from extensions import bcrypt
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
@@ -12,6 +12,32 @@ CORS(advertiser)
 
 # CORS(register, resources={
 #     r"/*": {"origins": "http://localhost:3000"}})  # Allow CORS for the login blueprint (Cross-Origin Resource Sharing
+
+
+# the advertiser paid successfully
+@advertiser.route('/advertiser/paid_success', methods=['POST'])
+def paid_success():
+    data = request.json
+    advertiser_id = data.get('advertiser_id')
+
+    #check if is_paying is true
+    advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
+    if advertiser.is_paying:
+        return jsonify({"error": "already paying"}), 400
+    advertiser.is_paying = True
+    db.session.commit()
+    return jsonify({"message": "Paid successfully"}), 200
+
+
+#check if the advertiser is paying
+@advertiser.route('/advertiser/is_paying', methods=['POST'])
+def is_paying():
+    data = request.json
+    advertiser_id = data.get('advertiser_id')
+    advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
+    if advertiser.is_paying:
+        return jsonify({"message": "Paying"}), 200
+    return jsonify({"error": "Not paying"}), 400
 
 
 @advertiser.route('/advertiser/getInfo', methods=['POST'])
@@ -44,7 +70,7 @@ def get_info():  # get advertiser info (remaining the campaign info)
         campaign['locations'] = campaign_locations
         campaign['videos'] = campaign_videos
         campaigns_dict.append(campaign)
-    return jsonify({"advertiser": advertiser, "campaigns":campaigns_dict}), 200
+    return jsonify({"advertiser": advertiser, "campaigns": campaigns_dict}), 200
 
 
 @advertiser.route('/advertiser/addCampaign', methods=['POST'])
@@ -101,7 +127,7 @@ def add_campaign():
 @advertiser.route('/advertiser/editCampaign', methods=['POST'])
 def edit_campaign():
     data = json.loads(request.form['data'])
-    
+
     campaign_name = data.get('campaign_name')
     campaign_description = data.get('campaign_description')
     campaign_start_date = data.get('campaign_start_date')
@@ -235,6 +261,25 @@ def get_campaigns():
         campaign['videos'] = campaign_videos
         campaigns_dict.append(campaign)
     return jsonify({"campaigns": campaigns_dict}), 200
+
+
+#add a campaign to the wishlist
+@advertiser.route('/advertiser/add_to_wishlist', methods=['POST'])
+def add_to_wishlist():
+    data = request.json
+    advertiser_id = data.get('advertiser_id')
+    campaign_id = data.get('campaign_id')
+    #check if the campaign is already in the wishlist
+    campaign = Advertiser_Wishlist.query.filter_by(advertiser_id=advertiser_id, campaign_id=campaign_id).first()
+    if campaign:
+        # remove from wishlist
+        db.session.delete(campaign)
+        db.session.commit()
+        return jsonify({"message": "Campaign removed from the wishlist"}), 200
+    new_wishlist = Advertiser_Wishlist(advertiser_id=advertiser_id, campaign_id=campaign_id)
+    db.session.add(new_wishlist)
+    db.session.commit()
+    return jsonify({"message": "Campaign added to the wishlist"}), 201
 
 
 @advertiser.route('/advertiser/editAdvertiser', methods=['POST'])

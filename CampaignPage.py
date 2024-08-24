@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from sqlalchemy import select, func, alias
 
-from database import Campaigns, Ad_Impressions, db, Wishlist, Ad_Clicks
+from database import Campaigns, Ad_Impressions, db, User_Wishlist, Ad_Clicks, Advertiser_Wishlist
 
 campaign_page = Blueprint("campaign_page", __name__, static_folder="static")
 CORS(campaign_page)
@@ -60,20 +60,33 @@ def take_offer():
 @campaign_page.route('/campaign_page/add_to_wishlist', methods=['POST'])
 def add_to_wishlist():
     data = request.json
-    user_id = data.get('user_id')
+    user_advertiser_id = data.get('user_advertiser_id')
     campaign_id = data.get('campaign_id')
-    #check in the ad_impression whether the last impression took the offer or not
-    campaign = Wishlist.query.filter_by(user_id=user_id, campaign_id=campaign_id).first()
-    if campaign:
-        #remove from wishlist
-        db.session.delete(campaign)
-        db.session.commit()
-        return jsonify({"message": "Campaign removed from wishlist successfully"}), 200
-    else:
-        new_wishlist = Wishlist(user_id=user_id, campaign_id=campaign_id)
+    role = data.get('role')
+    if role == 'advertiser':
+        campaign = Advertiser_Wishlist.query.filter_by(advertiser_id=user_advertiser_id, campaign_id=campaign_id).first()
+        if campaign:
+            # remove from wishlist
+            db.session.delete(campaign)
+            db.session.commit()
+            return jsonify({"message": "Campaign removed from the wishlist"}), 200
+        new_wishlist = Advertiser_Wishlist(advertiser_id=user_advertiser_id, campaign_id=campaign_id)
         db.session.add(new_wishlist)
         db.session.commit()
-        return jsonify({"message": "Campaign added to wishlist successfully"}), 200
+        return jsonify({"message": "Campaign added to the wishlist"}), 201
+    else:
+        #check in the ad_impression whether the last impression took the offer or not
+        campaign = User_Wishlist.query.filter_by(user_id=user_advertiser_id, campaign_id=campaign_id).first()
+        if campaign:
+            #remove from wishlist
+            db.session.delete(campaign)
+            db.session.commit()
+            return jsonify({"message": "Campaign removed from wishlist successfully"}), 200
+        else:
+            new_wishlist = User_Wishlist(user_id=user_advertiser_id, campaign_id=campaign_id)
+            db.session.add(new_wishlist)
+            db.session.commit()
+            return jsonify({"message": "Campaign added to wishlist successfully"}), 200
 
 
 # add link pressed to the ad_clicks

@@ -101,6 +101,7 @@ class Advertisers(db.Model, UserMixin):
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))
     visa_number = db.Column(db.String(50))
+    is_paying = db.Column(db.Boolean)
 
     #transform to dictionary
     def to_dict(self):
@@ -240,9 +241,15 @@ class Campaign_Images(db.Model):
         return images
 
 
-class Wishlist(db.Model):
+class User_Wishlist(db.Model):
+    __tablename__ = 'user_wishlist'  # Ensure this matches the table name
     campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
     user_id = db.Column(db.Integer, ForeignKey('users.id'), primary_key=True)
+
+class Advertiser_Wishlist(db.Model):
+    __tablename__ = 'advertiser_wishlist'  # Ensure this matches the table name
+    campaign_id = db.Column(db.Integer, ForeignKey('ad_campaigns.id'), primary_key=True)
+    advertiser_id = db.Column(db.Integer, ForeignKey('advertisers.id'), primary_key=True)
 
 
 class Advertiser_Images(db.Model):

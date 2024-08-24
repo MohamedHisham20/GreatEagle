@@ -1,8 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from database import Users, dict_factory, Advertisers, Campaigns, Ad_Impressions, db, Wishlist, Campaign_Locations, \
-    Campaign_Images
-from flask_login import login_user, current_user, logout_user, login_required
+from database import dict_factory, Advertisers, Campaigns, db, Campaign_Locations, Campaign_Images
 
 search_page = Blueprint("search_page", __name__, static_folder="static")
 CORS(search_page)
