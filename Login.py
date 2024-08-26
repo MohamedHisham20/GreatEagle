@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from database import Users, dict_factory, Advertisers
+from database import Users, dict_factory, Advertisers, User_Wishlist, Advertiser_Wishlist
 from extensions import bcrypt
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -31,12 +31,27 @@ def login_view():
     if user and bcrypt.check_password_hash(user.password, password):
         #Successful login
         login_user(user, remember=True)
+        #add the wishlist of the user
+        user_id = user.id
+        #get the user's wishlist
+        if role == 'user':
+            wishlist = User_Wishlist.query.filter_by(user_id=user_id).all()
+        else:
+            wishlist = Advertiser_Wishlist.query.filter_by(advertiser_id=user_id).all()
+
+        wishlist_dict = []
+        if wishlist:
+            # get the campaigns' locations and images
+            for item in wishlist:
+                wishlist_dict.append(item.campaign_id)
+        print(wishlist_dict)
         #add the role to the dictionary
         user = dict_factory(user)
         user['role'] = role
+        user['wishlist'] = wishlist_dict
         return jsonify({"message": "Login successful", "person": user}), 200
     else:
-        return jsonify({'Login Unsuccessful. Please check email and password'}), 401
+        return jsonify({"error": 'Login Unsuccessful. Please check email and password'}), 401
 
 
 # logout route
