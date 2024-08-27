@@ -1,5 +1,6 @@
 # blueprints/models.py
 import enum
+import uuid
 
 from flask import send_file
 from flask_sqlalchemy import SQLAlchemy
@@ -9,7 +10,8 @@ from sqlalchemy.orm import Mapped
 
 db = SQLAlchemy()
 
-
+def generate_referral_code(user_id):
+    return str(uuid.uuid3(uuid.NAMESPACE_DNS, str(user_id)))
 # create a function to get the image of the advertiser
 def get_advertiser_image(advertiser_id):
     advertiser = Advertisers.query.filter_by(id=advertiser_id).first()
@@ -67,6 +69,20 @@ class CriteriaEnum(enum.Enum):
 class AdvertiserTypeEnum(enum.Enum):
     Factory = "Factory"
     Shop = "Shop"
+    Company = "Company"
+    Supermarket = "Supermarket"
+    Fashion = "Fashion"
+    Health_and_Beauty = "Health & Beauty"
+    Baby_products = "Baby Products"
+    Phones_and_Tablets = "Phones & Tablets"
+    Home_and_Furniture = "Home & Furniture"
+    Appliances = "Appliances"
+    Televisions_and_Audio = "Televisions & Audio"
+    Computing = "Computing"
+    Gaming = "Gaming"
+    Sporting_goods = "Sporting Goods"
+    Other_categories = "Other categories"
+
 
 
 class Users(db.Model, UserMixin):
@@ -77,6 +93,7 @@ class Users(db.Model, UserMixin):
     age = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String(255), nullable=False)
     profile_pic = db.Column(db.String(200))
+    referral_code = db.Column(db.String(50))
 
     def to_dict(self):
         return {
@@ -85,7 +102,8 @@ class Users(db.Model, UserMixin):
             'email': self.email,
             'age': self.age,
             'name': self.name,
-            'profile_pic': self.profile_pic
+            'profile_pic': self.profile_pic,
+            'referral_code': self.referral_code
         }
 
 
@@ -96,7 +114,7 @@ class Advertisers(db.Model, UserMixin):
     contact_email = db.Column(db.String(255), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     advertiser_pic = db.Column(db.String(200))
-    referral_code = db.Column(db.Integer)
+    referral_code = db.Column(db.String(50))
     advertiser_type = db.Column(Enum(AdvertiserTypeEnum),
                                 nullable=False)  # another method enum : Mapped[AdvertiserTypeEnum]
     about = db.Column(db.String(500))

@@ -263,23 +263,23 @@ def get_campaigns():
     return jsonify({"campaigns": campaigns_dict}), 200
 
 
-#add a campaign to the wishlist
-@advertiser.route('/advertiser/add_to_wishlist', methods=['POST'])
-def add_to_wishlist():
-    data = request.json
-    advertiser_id = data.get('advertiser_id')
-    campaign_id = data.get('campaign_id')
-    #check if the campaign is already in the wishlist
-    campaign = Advertiser_Wishlist.query.filter_by(advertiser_id=advertiser_id, campaign_id=campaign_id).first()
-    if campaign:
-        # remove from wishlist
-        db.session.delete(campaign)
-        db.session.commit()
-        return jsonify({"message": "Campaign removed from the wishlist"}), 200
-    new_wishlist = Advertiser_Wishlist(advertiser_id=advertiser_id, campaign_id=campaign_id)
-    db.session.add(new_wishlist)
-    db.session.commit()
-    return jsonify({"message": "Campaign added to the wishlist"}), 201
+# #add a campaign to the wishlist
+# @advertiser.route('/advertiser/add_to_wishlist', methods=['POST'])
+# def add_to_wishlist():
+#     data = request.json
+#     advertiser_id = data.get('advertiser_id')
+#     campaign_id = data.get('campaign_id')
+#     #check if the campaign is already in the wishlist
+#     campaign = Advertiser_Wishlist.query.filter_by(advertiser_id=advertiser_id, campaign_id=campaign_id).first()
+#     if campaign:
+#         # remove from wishlist
+#         db.session.delete(campaign)
+#         db.session.commit()
+#         return jsonify({"message": "Campaign removed from the wishlist"}), 200
+#     new_wishlist = Advertiser_Wishlist(advertiser_id=advertiser_id, campaign_id=campaign_id)
+#     db.session.add(new_wishlist)
+#     db.session.commit()
+#     return jsonify({"message": "Campaign added to the wishlist"}), 201
 
 
 @advertiser.route('/advertiser/editAdvertiser', methods=['POST'])
@@ -301,10 +301,14 @@ def edit_advertiser():
     visa_number = data.get('visa')
     advertiser_phones = data.get('advertiser_phones')
     advertiser_locations = data.get('advertiser_locations')
-    advertiser_image = request.files['image']
-
+    advertiser_image = request.files['image'] if 'image' in request.files else None
     advertiser_password = data.get('password')
-    hashed_password = bcrypt.generate_password_hash(advertiser_password).decode('utf-8')
+    # check if the password is provided
+    if advertiser_password:
+        # hash the password
+        hashed_password = bcrypt.generate_password_hash(advertiser_password).decode('utf-8')
+        advertiser.password = check_data(advertiser.password, hashed_password)
+
     # check if the image is provided
     if advertiser_image:
         # check if the image is an image
@@ -329,7 +333,6 @@ def edit_advertiser():
     advertiser.advertiser_type = check_data(advertiser.advertiser_type, advertiser_type)
     advertiser.about = check_data(advertiser.about, about)
     advertiser.visa_number = check_data(advertiser.visa_number, visa_number)
-    advertiser.password = check_data(advertiser.password, hashed_password)
 
     # add the advertiser phones to the database
     if advertiser_phones:

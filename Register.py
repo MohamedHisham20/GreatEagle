@@ -1,5 +1,6 @@
 import vercel_blob
-from database import Users, db, Advertisers, Advertiser_Phones, Advertiser_Locations, get_advertiser_image
+from database import Users, db, Advertisers, Advertiser_Phones, Advertiser_Locations, get_advertiser_image, \
+    generate_referral_code
 from extensions import bcrypt
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
@@ -40,6 +41,8 @@ def register_1():
         name = data.get('name')
         age = data.get('age')
         email = data.get('email')
+        referral_code = None
+        check_referral_code = data.get('referral_code')
 
 
         #check if email and password are provided
@@ -55,7 +58,13 @@ def register_1():
         new_user = Users(username=username, password=hashed_password, name=name, age=age,
                          email=email, profile_pic=image_url)
         db.session.add(new_user)
+        user_id = new_user.id
+        if check_referral_code != "":
+            referral_code = generate_referral_code(user_id)
+            new_user.referral_code = referral_code
         db.session.commit()
+        #get the user id
+            # db.session.commit()
 
         return jsonify({"message": "User created successfully"}), 201
 

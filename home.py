@@ -11,9 +11,15 @@ CORS(home)
 
 
 #create a route to retreive popular ads in the db (campaigns with offers)
-@home.route('/home/popularCampaigns', methods=['GET'])
+@home.route('/home/popularCampaigns', methods=['POST'])
 def popular_Campaigns():
-    campaigns = Campaigns.query.filter(Campaigns.offer.isnot(None)).all()
+    data = request.json
+    advertiser_type = data.get('advertiser_type')
+    if advertiser_type == '':
+        campaigns = Campaigns.query.filter(Campaigns.offer.isnot(None)).all()
+    else:
+        campaigns = Campaigns.query.join(Advertisers, Campaigns.advertiser_id == Advertisers.id) \
+            .filter(Campaigns.offer.isnot(None), Advertisers.advertiser_type == advertiser_type).all()
     campaigns_dict = []
     #get the campaigns' locations and images
     for campaign in campaigns:

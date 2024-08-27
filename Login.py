@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from database import Users, dict_factory, Advertisers, User_Wishlist, Advertiser_Wishlist
 from extensions import bcrypt
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import login_user, logout_user
 
 login = Blueprint("login", __name__, static_folder="static")
 CORS(login)
@@ -44,7 +44,6 @@ def login_view():
             # get the campaigns' locations and images
             for item in wishlist:
                 wishlist_dict.append(item.campaign_id)
-        print(wishlist_dict)
         #add the role to the dictionary
         user = dict_factory(user)
         user['role'] = role

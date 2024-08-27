@@ -24,7 +24,7 @@ def check_offer():
     else:
         #check the take offer boolean
         if user_impression.took_offer:
-            return jsonify({"message": "Offer already taken"}), 400
+            return jsonify({"error": "Offer already taken"}), 400
         else:
             return jsonify({"message": "User can take offer"}), 200
 
@@ -49,7 +49,7 @@ def take_offer():
     else:
         #check the take offer boolean
         if user_impression.took_offer:
-            return jsonify({"message": "Offer already taken"}), 400
+            return jsonify({"error": "Offer already taken"}), 400
         else:
             user_impression.took_offer = True
             db.session.commit()

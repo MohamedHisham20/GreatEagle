@@ -1,7 +1,7 @@
 import vercel_blob
 
 from database import db, Advertisers, Campaigns, dict_factory, User_Wishlist, Campaign_Images, Ad_Impressions, \
-    Advertiser_Phones, Users, check_data, Ad_Clicks, Campaign_Locations, Campaign_Videos
+    Advertiser_Phones, Users, check_data, Ad_Clicks, Campaign_Locations, Campaign_Videos, Advertiser_Wishlist
 from flask import request, jsonify, Blueprint, json
 from flask_cors import CORS
 
@@ -15,11 +15,15 @@ CORS(user)
 @user.route('/user/get_wishlist', methods=['POST'])
 def get_wishlist():
     data = request.json
-    user_id = data.get('user_id')
+    user_id = data.get('user_advertiser_id')
+    role = data.get('role')
     if not user_id:
         #return unauthorized if the user is not logged in
         return jsonify({"error": "Unauthorized"}), 401
-    wishlist = User_Wishlist.query.filter_by(user_id=user_id).all()
+    if role == 'user':
+        wishlist = User_Wishlist.query.filter_by(user_id=user_id).all()
+    else:
+        wishlist = Advertiser_Wishlist.query.filter_by(advertiser_id=user_id).all()
     wishlist_dict = []
     # get the campaigns' locations and images
     for item in wishlist:
@@ -78,6 +82,9 @@ def used_offers():
         Ad_Impressions.campaign_id, Ad_Impressions.impression_date.desc()).distinct(
         Ad_Impressions.campaign_id).limit(
         5).all()
+    # no ads found
+    if not viewed_ads:
+        return jsonify({"message": "No offers used"}), 200
     viewed_ads_dict = []
     for item in viewed_ads:
         campaign = Campaigns.query.filter_by(id=item.campaign_id).first()
@@ -121,7 +128,7 @@ def edit_profile():
     user = Users.query.filter_by(id=user_id).first()
     if not user:
         return jsonify({"error": "User not found"}), 400
-    user_image = request.files['image']  ########## future implementation
+    user_image = request.files['image'] if 'image' in request.files else None
 
     if user_image:
         # upload the image to the cloudinary
