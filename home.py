@@ -39,9 +39,16 @@ def popular_Campaigns():
 
 
 #create a route to retreive normal ads in the db (campaigns without offers)
-@home.route('/home/normalCampaigns', methods=['GET'])
+@home.route('/home/normalCampaigns', methods=['POST'])
 def normal_Campaigns():
-    campaigns = Campaigns.query.filter(Campaigns.offer.is_(None)).all()
+    data = request.json
+    advertiser_type = data.get('advertiser_type')
+    if advertiser_type == '':
+        campaigns = Campaigns.query.filter(Campaigns.offer.is_(None)).all()
+    else:
+        campaigns = Campaigns.query.join(Advertisers, Campaigns.advertiser_id == Advertisers.id) \
+            .filter(Campaigns.offer.is_(None), Advertisers.advertiser_type == advertiser_type).all()
+
     campaigns_dict = []
     # get the campaigns' locations and images
     for campaign in campaigns:
